@@ -7,15 +7,11 @@
 
 #ifndef DRIVERSIOMANAGER_H_
 #define DRIVERSIOMANAGER_H_
-#include <cwctype>
 
 #include "interfaces/ioutputvalue.h"
 #include <vector>
 
 #include "driversiohw/adccontrol.h"
-
-
-
 #include "driversiohw/rsin.h"
 #include "driversiohw/rsout.h"
 #include "driversiohw/sctout.h"
@@ -24,11 +20,8 @@
 #include "interfaces/idispatchflags.h"
 #include "interfaces/iusingflags.h"
 #include "interfaces/iusingirq.h"
-
-
 #include "types.h"
 #include "dllapi/idriversiomanager.h"
-
 
 class AnalogIn;
 class Potentiometr;

@@ -29,12 +29,9 @@ struct ICConfiguration
 	virtual int GetConnection(BYTE sp, IOTYPES st, BYTE sn, BYTE &dp, IOTYPES &dt, BYTE &dn) = 0;
 	virtual BYTE GetChannelHWNum(IChannel* ch) = 0;
 	virtual void Instance() = 0;
-	// ¬озвращает указатель на регистр по ID
 	virtual CRegister* GetRegister(REGISTER_ID id) = 0;
-	// ¬озвращает указатель на параметры регистров по ID
 	virtual const IChannel::REGISTER_TYPE* GetRegisterT(REGISTER_ID id) = 0;
 	virtual bool IsInitialized() const = 0;
-	// ѕодготовка последовательности расчета (поиск в грубину)
 	virtual void PrepareLogicSequence() = 0;
 	virtual void AddChannelToList(IChannel* ch) = 0;
 	virtual IO_GROUP_STATE GetState() = 0;

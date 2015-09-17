@@ -1,7 +1,6 @@
 #include "cconfiguration.h"
 
 #include <stdio.h>
-#include <cstring>
 #include "../compilier/cparserconfig.h"
 #include "../compilier/cparserdevice.h"
 #include "../drivers/gpio.h"

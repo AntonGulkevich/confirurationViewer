@@ -1,51 +1,53 @@
-/*
- * pldmemorycontrol.cpp
- *
- *  Created on: 12 рту. 2015 у.
- *      Author: Youbrin_A
- */
+#include "memoryemulation.h"
 
-#include "pldmemorycontrol.h"
+MemoryEmulation memControl;
 
-PldMemoryControl memControl;
+MemoryEmulation::MemoryEmulation()
+{
 
-DWORD PldMemoryControl::UcuRead(UINT baseAddress, UINT offset) const
-{
-	TestAddress(baseAddress + offset);
-	return (*reinterpret_cast<volatile DWORD*>((baseAddress) + (offset)));
-}
-float PldMemoryControl::UcuReadF(UINT baseAddress, UINT offset) const
-{
-	TestAddress(baseAddress + offset);
-	return (*reinterpret_cast<volatile float*>((baseAddress) + (offset)));
-}
-void PldMemoryControl::UcuWrite(UINT baseAddress, UINT offset, DWORD data) const
-{
-	TestAddress(baseAddress + offset);
-	(*reinterpret_cast<volatile DWORD*>((baseAddress) + (offset))) = data;
-}
-void PldMemoryControl::UcuWriteF(UINT baseAddress, UINT offset, float data) const
-{
-	TestAddress(baseAddress + offset);
-	(*reinterpret_cast<volatile float*>((baseAddress) + (offset))) = data;
 }
 
-bool PldMemoryControl::TestAddress(DWORD address) const
+MemoryEmulation::~MemoryEmulation()
+{
+}
+
+DWORD MemoryEmulation::UcuRead(UINT baseAddress, UINT offset) const
+{
+	TestAddress(baseAddress + offset);
+	return (*reinterpret_cast<volatile DWORD*>((baseAddress)+(offset)));
+}
+float MemoryEmulation::UcuReadF(UINT baseAddress, UINT offset) const
+{
+	TestAddress(baseAddress + offset);
+	return (*reinterpret_cast<volatile UCU_FLOAT*>((baseAddress)+(offset)));
+}
+void MemoryEmulation::UcuWrite(UINT baseAddress, UINT offset, DWORD data) const
+{
+	TestAddress(baseAddress + offset);
+	(*reinterpret_cast<volatile DWORD*>((baseAddress)+(offset))) = data;
+}
+void MemoryEmulation::UcuWriteF(UINT baseAddress, UINT offset, UCU_FLOAT data) const
+{
+	TestAddress(baseAddress + offset);
+	(*reinterpret_cast<volatile UCU_FLOAT*>((baseAddress)+(offset))) = data;
+}
+
+bool MemoryEmulation::TestAddress(DWORD address) const
 {
 	if ((address & 0x3) != 0)
 		return false;
-	for(auto i = 0; i < AddressCount-1; i++)
+	for (auto i = 0; i < AddressCount - 1; i++)
 	{
-		if (address > Addresses[i][1] && address < Addresses[i+1][0])
+		if (address > Addresses[i][1] && address < Addresses[i + 1][0])
 			return false;
 	}
 	return true;
 }
 
-DWORD PldMemoryControl::Addresses[AddressCount][2] =
+DWORD MemoryEmulation::Addresses[AddressCount][2] =
 {
-	{ 0x0, 0x3ffff }, //PS7_RAM_0_S_AXI_BASE
-	{ 0x100000, 0xfffffff }, //PS7_DDR_0_S_AXI_BASE
+	{ 0x00000000, 0x0003ffff }, //PS7_RAM_0_S_AXI_BASE
+	{ 0x00100000, 0x0fffffff }, //PS7_DDR_0_S_AXI_BASE
 	{ 0x43c00000, 0x43c0ffff }, //ARINC_IN_TOP_0_BASE
 	{ 0x43c10000, 0x43c1ffff }, //ARINC_IN_TOP_1_BASE
 	{ 0x43c20000, 0x43c2ffff }, //ARINC_IN_TOP_2_BASE

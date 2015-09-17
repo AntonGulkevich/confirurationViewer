@@ -146,6 +146,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ucu_fw\src\dllapi\memoryEmulation.cpp" />
     <ClCompile Include="ucu_fw\src\dllAPI\Factory.cpp" />
     <ClCompile Include="ucu_fw\src\dllAPI\DLLMain.cpp" />
     <ClCompile Include="ucu_fw\src\dllAPI\UbsLibrary.cpp" />
@@ -227,6 +228,7 @@
     <ClCompile Include="ucu_fw\src\workmanager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ucu_fw\src\dllapi\memoryEmulation.h" />
     <ClInclude Include="ucu_fw\src\dllapi\idriversiomanager.h" />
     <ClInclude Include="ucu_fw\src\dllapi\idrivermanager.h" />
     <ClInclude Include="ucu_fw\src\dllAPI\DllWrapperFactory.h" />

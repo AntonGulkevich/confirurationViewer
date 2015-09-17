@@ -13,12 +13,6 @@
 #include "../drivermanager.h"
 #include "../driversiomanager.h"
 
-class DriverManager;
-class DriversIOManager;
-class CPattern;
-class Commod;
-class Console;
-
 class DllWrapperFactory
 {
 public:

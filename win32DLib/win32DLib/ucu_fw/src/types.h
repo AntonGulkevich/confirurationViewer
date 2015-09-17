@@ -1,7 +1,7 @@
 // Описание типов данных используемых в УБС
 #ifndef TYPES_H_
 #define TYPES_H_
-#include <cstring>
+
 //#define _NO_COMPILIER
 
 //if emulation defined x-files r disabled
@@ -25,7 +25,6 @@ typedef float               UCU_FLOAT;
 
 
 //#define PLD_MEMORY_CONTROL
-
 #ifdef PLD_MEMORY_CONTROL
 
 #include "pldmemorycontrol.h"
@@ -37,6 +36,15 @@ typedef float               UCU_FLOAT;
 #define UCU_IOWR_32DIRECTF(base, offset, data) memControl.UcuWriteF(base, offset, data)
 
 #else
+#ifdef EMULATION
+
+#define UCU_IORD_32DIRECT(base, offset) (*(volatile DWORD*)((base) + (offset)))
+#define UCU_IOWR_32DIRECT(base, offset, data) (*(volatile DWORD*)((base) + (offset))) = data
+
+#define UCU_IORD_32DIRECTF(base, offset) (*(volatile float*)((base) + (offset)))
+#define UCU_IOWR_32DIRECTF(base, offset, data) (*(volatile float*)((base) + (offset))) = data	
+
+#else
 
 #define UCU_IORD_32DIRECT(base, offset) (*(volatile DWORD*)((base) + (offset)))
 #define UCU_IOWR_32DIRECT(base, offset, data) (*(volatile DWORD*)((base) + (offset))) = data
@@ -44,6 +52,7 @@ typedef float               UCU_FLOAT;
 #define UCU_IORD_32DIRECTF(base, offset) (*(volatile float*)((base) + (offset)))
 #define UCU_IOWR_32DIRECTF(base, offset, data) (*(volatile float*)((base) + (offset))) = data
 
+#endif //EMULATION
 #endif
 
 

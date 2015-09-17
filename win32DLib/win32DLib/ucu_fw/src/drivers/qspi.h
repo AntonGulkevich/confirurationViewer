@@ -9,6 +9,7 @@
 #define QSPI_H_
 
 #include "../types.h"
+#include <cstring>
 
 #ifndef EMULATION
 

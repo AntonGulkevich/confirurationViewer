@@ -48,8 +48,6 @@ public:
 	void StartCalibrationIn();
 	bool IsCalibrationInProgress() const	{ return _calibrateState > 0; }
 	void ProcessCalibration();
-
-
 };
 
 #endif /* CALIBRATIONMANAGER_H_ */
