@@ -1,8 +1,8 @@
 #include "stdafx.h"
 
 typedef Factory * (__stdcall *DLLGETFACTORY)(void);
-typedef void * (__stdcall *DLLRDMEM)(LPBYTE , DWORD , DWORD );//read
-typedef void * (__stdcall *DLLWRMEM)(LPBYTE , DWORD , DWORD );//write
+typedef void * (__stdcall *DLLRDMEM)(LPBYTE, DWORD, DWORD);//read
+typedef void * (__stdcall *DLLWRMEM)(LPBYTE, DWORD, DWORD);//write
 
 using std::cout;
 using std::endl;
@@ -28,9 +28,26 @@ int main(int argc, char* argv[])
 	//testConfiguration->LoadConfig();
 	auto pfnRdMem = reinterpret_cast<DLLRDMEM>(GetProcAddress(hInstDll, ("readSharedMem")));
 	auto pfnWrMem = reinterpret_cast<DLLWRMEM>(GetProcAddress(hInstDll, ("writeSharedMem")));
+	
+	const auto maxSize = 15;
+	PBYTE pReg1 = new BYTE[maxSize];
+	PBYTE pReg2 = new BYTE[maxSize];
+	memset(pReg1, 101, maxSize);
+	memset(pReg2, 100, maxSize);
 
+	pfnWrMem(pReg1, 0, maxSize);
+	pfnWrMem(pReg2, maxSize+1, maxSize);
 
-	//void * objPtr = pfnRdMem();
+	cout << endl<<  pReg1 << endl << pReg2 << endl;
+
+	PBYTE rdReg1 = new BYTE[maxSize];
+	PBYTE rdReg2 = new BYTE[maxSize];
+	
+	pfnRdMem(rdReg1, 0, maxSize);
+	pfnRdMem(rdReg2, maxSize+1, maxSize);
+
+	cout << endl << rdReg1 << endl << rdReg2 << endl;
+
 	system("PAUSE");
 	//better to free library. automatically free library when there is no process using it
 	FreeLibrary(hInstDll);
@@ -41,10 +58,7 @@ int main(int argc, char* argv[])
 	wstring wstr(fileName);
 	string str(wstr.begin(), wstr.end());
 	cout << str << endl;
-	system("PAUSE");
-
-	
-	
+	system("PAUSE");	
 
 	return 0;
 }

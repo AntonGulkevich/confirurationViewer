@@ -15,8 +15,6 @@
 
 // Handle type. In C++ language the iterface type is used.
 typedef DllWrapperFactory * UBS_HANDLE;
-// pointer to shared memory
-static LPVOID lpvMem = nullptr;  
 // handle to file mapping
 static HANDLE hMapObject = nullptr;  
 
