@@ -243,6 +243,8 @@ BYTE Display::GetByteByLetter(char ch) const
 		return 0x49;
 	case 'h':
 		return 0x74;
+	case '^':
+		return 0x1;
 	default:
 		return 0x00;
 

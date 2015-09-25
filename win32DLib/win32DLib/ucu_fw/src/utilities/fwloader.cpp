@@ -99,7 +99,7 @@ void FWLoader::LoadFW()
 			_qspi->Write(data, 0, totalPacket * PACKET_SIZE);
 			_usb->SendProgress(3, 0);
 			_display->SetTextByText("ÓÑÏ ");
-			for(;;);
+			ERROR_LOOP;
 		} else
 		{
 			_display->SetTextByText("Err");

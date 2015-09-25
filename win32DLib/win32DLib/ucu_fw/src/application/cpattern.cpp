@@ -23,11 +23,11 @@ CPattern::CPattern(DriversIOManager* driversIO, CConfiguration* config, UINT lSe
 	_config = config;
 	_driversIO = driversIO;
 	for(UINT i = 0; i < static_cast<UINT>(REGISTER_ID::COUNTREGISTERS); i++)
-		registers_t[i].id = REGISTER_ID::nullptrID;
+		registers_t[i].id = REGISTER_ID::NULLID;
 	registers_t[static_cast<UINT>(REGISTER_ID::rNAME)] = {REGISTER_ID::rNAME, rwConstant, rtString, 0,0,0, true};
 	for(UINT i = 0; i < static_cast<UINT>(REGISTER_ID::COUNTREGISTERS); i++)
 	{
-		if (registers_t[i].id != REGISTER_ID::nullptrID)
+		if (registers_t[i].id != REGISTER_ID::NULLID)
 			registers_t[i].reg = new CRegister();
 		else
 			registers_t[i].reg = nullptr;

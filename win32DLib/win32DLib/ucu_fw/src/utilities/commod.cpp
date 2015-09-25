@@ -25,7 +25,6 @@ int Commod::OpenDevice(UINT index)
 		return -1;
 	opened = index;
 	_i2c->Read(_currentDevice, cFat[opened].address, cFat[opened].size);
-
 	_currentDevice[cFat[opened].size] = 0;
 	ptr = 0;
 	return opened;
@@ -42,7 +41,7 @@ void Commod::WriteConfig(char* buffer, UINT size) const
 {
 	for(UINT i = 0; i < size; i+=256)
 	{
-	Gpio::SVSet();
+		Gpio::SVSet();
 		_i2c->Write(&buffer[i], i, 256);
 	}
 }
@@ -54,12 +53,33 @@ void Commod::ReadConfig(char* buffer)
 		size = 0xFFFF;
 	for(UINT i = 0; i < size; i+=256)
 	{
-	Gpio::SVSet();
+		Gpio::SVSet();
 		_i2c->Read(&buffer[i], i, 256);
 
 	}
 }
 
+void Commod::WriteSettings(char* buffer, UINT size) const
+{
+	for(UINT i = 0; i < size; i+=256)
+	{
+		Gpio::SVSet();
+		_i2c->Write(&buffer[i], i + START_SAVE_SETTING_ADDRESS, 256);
+
+	}
+}
+
+void Commod::ReadSettings(char* buffer)
+{
+	UINT size;
+	_i2c->Read(&size, START_SAVE_SETTING_ADDRESS, 4);
+	if (size < 0xFFFF)
+		for(UINT i = 0; i < size; i+=256)
+		{
+			Gpio::SVSet();
+			_i2c->Read(&buffer[i], i + START_SAVE_SETTING_ADDRESS, 256);
+		}
+}
 DWORD Commod::GetCMNumber() const
 {
 	WORD serialNum;

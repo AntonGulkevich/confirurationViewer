@@ -25,14 +25,14 @@ public:
 	explicit SubMenu(const char* name, const BYTE points = 0) : MenuItem(name, points) {  _currentIndex = 0;  _isInSubMenu = false; _isSubMenu = true;}
 	virtual ~SubMenu() {}
 
-	virtual const char* GetElementName() const override;
+	virtual const char* GetElementName() override;
 	virtual const DWORD GetPoints() const override;
 
 	void AddItem(MenuItem* item) { _items.push_back(item); }
 	void Next();
 	void Prev();
 	void Enter() override;
-	bool Exit();
+	bool Exit() override;
 
 
 };

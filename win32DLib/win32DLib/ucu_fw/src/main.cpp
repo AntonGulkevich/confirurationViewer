@@ -139,6 +139,7 @@ int main() {
 	driverManager.EnableAllIrq();
 
 	auto tickCount = driverManager.GetPerfomance()->GetValue();
+
 	for(;;)
 	{
 /*		driverManager.GetGpio()->SetLED(Gpio::LEDS::L4_1, driversIO.GetADCControl()->GetState().iostSync1Fail == 1);

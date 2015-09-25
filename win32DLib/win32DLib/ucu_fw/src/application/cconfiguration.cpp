@@ -15,6 +15,112 @@
 #include "../utilities/console.h"
 #include "cpattern.h"
 
+
+const CConfiguration::GROUP_ID CConfiguration::Groups[] =
+{
+	{"Без группы",                     uUndefined,     false, 0, 0},
+	{"Курс",                           uDegree,        false, 3, 0},	// Курс
+	{"Крен",                           uDegree,        true,  3, 0},	// Крен
+	{"Тангаж",                         uDegree,        true,  3, 0},    // Тангаж
+	{"Заданный путевой угол",          uDegree,        false, 3, 0},	// Заданный путевой угол
+	{"Угловое положение закрылков",    uDegree,        true,  3, 0},	// УПЗ (угловое положение закрылков)
+	{"Пеленг ВОР",                     uDegree,	       false, 3, 0},	// Пеленг ВОР
+	{"Курсовой угол радиостанции",     uDegree,        false, 3, 0},	// Курсовой угол радиостанции (КУР)
+	{"Угол сноса",                     uDegree,	       false, 3, 0},	// Угол сноса (УС)
+	{"Нрв",	                           uMeter,         true,  4, 0},    // Нрв (радиовысотомер)
+	{"Нотн",                           uMeter,         true,  4, 0},    // Нотн
+	{"Набс",                           uMeter,         true,  4, 0},    // Набс осн.
+	{"Нэшелона",                       uMeter,         false, 4, 0},    // Нэшелона
+	{"Vy выч.",                        uKmph,          false, 4, 0},    // Vy выч.
+	{"Vист",                           uKmph,          false, 3, 0},    // Vист
+	{"V приб",                         uKmph,          false, 3, 0},    // V приб
+	{"Мах",                            uNone,          false, 2, 2},    // Мах
+	{"Дельта К",                       uPoints,        true,  1, 2},    // К
+	{"Дельта Г",                       uPoints,        true,  1, 2},    // Г
+	{"Тнар",                           uDegree,        true,  2, 1},    // Тнар
+	{"W путевая скорость",             uKmph,          false, 4, 0},
+	{"Wx",                             uKmph,          false, 4, 0},
+	{"Wy",                             uKmph,          false, 4, 0},
+	{"Wz",                             uKmph,          false, 4, 0},
+	{"Оставшееся расстояние",          uKm,            false, 4, 0},
+	{"ЛБУ",                            uKm,            true,  2, 1},
+	{"Дальность",                      uKm,            false, 4, 0},
+	{"Импульсный код",                 uUndefined,     false, 0, 0},
+	{"Биполярный код",                 uUndefined,     false, 0, 0},
+    {"RS-232",                         uUndefined,     false, 0, 0},
+    {"Разовый признак",                uNone,	       false, 1, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+	{"Резерв",                         uUndefined,     false, 0, 0},
+    {"Резерв",                         uUndefined,     false, 0, 0},
+    {"Слово состояния",				   uUndefined,	   false, 0, 0}
+
+};
+
 CConfiguration::CConfiguration(WorkManager* workManager) : _workManager(workManager)
 {
     _isInitialized = false;
@@ -24,7 +130,7 @@ CConfiguration::CConfiguration(WorkManager* workManager) : _workManager(workMana
     _syncUse = 0;
 
 	for(UINT i = 0; i < static_cast<UINT>(REGISTER_ID::COUNTREGISTERS); i++)
-		registers_t[i].id = REGISTER_ID::nullptrID;
+		registers_t[i].id = REGISTER_ID::NULLID;
 
     registers_t[static_cast<UINT>(REGISTER_ID::rVERSION)] = {REGISTER_ID::rVERSION, rwConstant, rtString, 0,0,0, true};
     registers_t[static_cast<UINT>(REGISTER_ID::rNAME)] = {REGISTER_ID::rNAME,    rwConstant, rtString, 0,0,0, true};
@@ -33,7 +139,7 @@ CConfiguration::CConfiguration(WorkManager* workManager) : _workManager(workMana
 
 	for(UINT i = 0; i < static_cast<UINT>(REGISTER_ID::COUNTREGISTERS); i++)
 	{
-		if (registers_t[i].id != REGISTER_ID::nullptrID)
+		if (registers_t[i].id != REGISTER_ID::NULLID)
 			registers_t[i].reg = new CRegister();
 		else
 			registers_t[i].reg = nullptr;
@@ -44,6 +150,12 @@ CConfiguration::~CConfiguration()
 {
     for (UINT i = 0; i < patterns.size(); i++)
         delete patterns[i];
+	if (_arincInIndex != nullptr)
+		delete[] _arincInIndex;
+	if (_arincOutIndex != nullptr)
+		delete[] _arincOutIndex;
+	if (_descreetOutIndex != nullptr)
+		delete[] _descreetOutIndex;
 }
 
 void CConfiguration::ProcessLogic()
@@ -163,7 +275,7 @@ CConfiguration::LOAD_RESULT CConfiguration::LoadConfig()
 		CreateIndexDeviceNum(); // Создание индекса по номерам устройств
 		DefineChannelFailIndex();
 	}
-	_isInitialized = lresult == LOAD_RESULT::OK;
+	_isInitialized = (lresult == LOAD_RESULT::OK);
 	if (_isInitialized)
 		sprintf(cfgNumberBuff, "%04d", GetRegister(REGISTER_ID::rDATABASENUM)->GetValueUInt());
     return lresult;
@@ -192,7 +304,7 @@ void CConfiguration::AddChannelToList(IChannel* ch)
 	for(UINT i = 0; i < channelList.size(); i++)
 		if (channelList[i] == ch)
 			return;
-	Console::TraceLine("%d, %s, %d", ch->GetPatternIndex(), CParser::GetTypeStr(ch->GetType()), ch->GetNumber());
+	//Console::TraceLine("%d, %s, %d", ch->GetPatternIndex(), CParser::GetTypeStr(ch->GetType()), ch->GetNumber());
 	channelList.push_back(ch);
 
 }
@@ -365,25 +477,19 @@ void CConfiguration::DefineChannelFailIndex()
 		 if (_workManager->GetDriversIO()->GetAnalogIn(i)->GetSyncNum() != 0)
 			 _syncUse = _syncUse | (1 << (_workManager->GetDriversIO()->GetAnalogIn(i)->GetSyncNum() - 1));
 	}
+
 	for(UINT i = 0; i < DriversIOManager::SCTOutCount; i++)
 	{
-		_arincInIndex[i] = nullptr;
 		for (UINT c = 0; c < connections.size(); c++)
 			if (connections[c].dst.num == i &&
 				connections[c].dst.pat == 0xFF &&
 				connections[c].dst.type == ioSCT)
 			{
-				_syncUse = _syncUse | (1 << ((connections[c].src.num) + 4));
+				_syncUse = _syncUse | (1 << ((connections[c].src.num-1) + 4));
 				break;
 			}
 	}
 
-	if (_arincInIndex != nullptr)
-		delete[] _arincInIndex;
-	if (_arincOutIndex != nullptr)
-		delete[] _arincOutIndex;
-	if (_descreetOutIndex != nullptr)
-		delete[] _descreetOutIndex;
 	_arincInIndex = new ChArincIn*[DriversIOManager::arincInCount];
 	_arincOutIndex = new ChArincOut*[DriversIOManager::arincOutCount];
 	_descreetOutIndex = new ChDescreeteOut*[DriversIOManager::descreeteOutputCount];

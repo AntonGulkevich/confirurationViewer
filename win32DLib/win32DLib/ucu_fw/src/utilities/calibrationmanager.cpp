@@ -228,6 +228,7 @@ void CalibrationManager::ProcessCalibration()
 			}
 			break; // ВЫход из функции при завершении калибровок
 		case 7: // Установка значений для калибровок ЦАП Sin
+#ifdef _CALIBRATION_SCT_0
 			for(UINT i = 0; i < DriversIOManager::NPTOutCount; i++) // Обнуление НПТ чтобы не пожечь контрольные входы
 			{
 				_driversIO->GetNPTOut(i)->SetValue(0);
@@ -262,6 +263,13 @@ void CalibrationManager::ProcessCalibration()
 			}
 			ApplyCalibration();
 			_drivers->GetDisplay()->SetTextByText("CL_9", true);
+#else
+			_calibrateState = 11 << 8;
+			for(UINT i = 0; i < DriversIOManager::SCTOutCount; i++)
+			{
+				_driversIO->GetSCTOut(i)->PrepareCalibrationScale();
+			}
+#endif
 			break;
 		case 12: // Пауза для установки значений
 			break;

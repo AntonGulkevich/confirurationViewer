@@ -12,7 +12,7 @@ ChLogicalOut::ChLogicalOut(CPattern* const pattern, UINT number) : IChannelOut(p
 	_ioType = IOTYPES::ioLogicalOut;
 	_number = number;
 	for(UINT i = 0; i < static_cast<UINT>(REGISTER_ID::COUNTREGISTERS); i++)
-		registers_t[i].id = REGISTER_ID::nullptrID;
+		registers_t[i].id = REGISTER_ID::NULLID;
 	_filter = new ChannelFilter(this);
 	_rate = new ChannelRate(this);
 

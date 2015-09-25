@@ -70,7 +70,7 @@ void I2C::Write(void* buffer, DWORD address, UINT size)
 {
 	// Для записи в КМ - вызвать функцию снятия защиты от записи
 	// Для записи в EEPROM - не забыть вставить джампер
-	// Для записи в часы, проверить адреса 64б
+	// Для записи в часы, проверить батарейку
 	if (_isDeviceAvailable)
 	{
 		while (XIicPs_BusIsBusy(&_iicInstance)) {}
@@ -83,6 +83,7 @@ void I2C::Write(void* buffer, DWORD address, UINT size)
 	}
 }
 #else
+
 
 I2C::I2C(UINT iicDdeviceId, UINT slaveDeviceId, UINT rate, UINT addressSize) : _iicDeviceId(iicDdeviceId), _slaveDeviceId(slaveDeviceId), _addressSize(addressSize)
 {
@@ -102,29 +103,22 @@ I2C::I2C(UINT iicDdeviceId, UINT slaveDeviceId, UINT rate, UINT addressSize) : _
 	else
 		_isDeviceAvailable = false;
 #else
-	enum
+	fileName ="C:\\Users\\Gulkevich_A\\Desktop\\current\\ubs dll\\configViewer\\";
+	switch (slaveDeviceId)
 	{
-		COMMOD,
-		CLOCK,
-		EEPROM
-	};
-	std::string fileName;
-	switch (iicDdeviceId)
-	{
-	case COMMOD:
-		fileName = "commod.bin";
+	case 0x50:
+		fileName += "commod.bin";
 		break;
-	case CLOCK:
-		fileName = "clock.bin";
+	case 0x68:
+		fileName += "clock.bin";
+
 		break;
-	case EEPROM:
-		fileName = "eeprom.bin";
+	case 0x54:
+		fileName += "eeprom.bin";
 		break;
-	default:
-		fileName = "def.bin";
-	}
+	}/*
 	_iicInstance.open(fileName, std::ios_base::binary | std::ios_base::in | std::ios_base::out);
-	_iicInstance.is_open() ? _isDeviceAvailable = true : _isDeviceAvailable = false;
+	_iicInstance.is_open() ? _isDeviceAvailable = true : _isDeviceAvailable = false;*/
 #endif
 
 }
@@ -146,40 +140,29 @@ void I2C::FillAddress(UINT address)
 
 void I2C::Read(void* buffer, DWORD address, UINT size) 
 {
+	_iicInstance.open(fileName, std::ios_base::binary | std::ios_base::in | std::ios_base::out);
+	_iicInstance.is_open() ? _isDeviceAvailable = true : _isDeviceAvailable = false;
+
 	if (_isDeviceAvailable)
 	{
-#ifndef EM_DEBUG 
-		while (XIicPs_BusIsBusy(&_iicInstance));
-		FillAddress(address);
-		XIicPs_MasterSendPolled(&_iicInstance, _addressBuff, _addressSize, _slaveDeviceId | _addressBuff[2]);
-		while (XIicPs_BusIsBusy(&_iicInstance));
-		XIicPs_MasterRecvPolled(&_iicInstance, reinterpret_cast<u8*>(buffer), size, _slaveDeviceId | _addressBuff[2]);
-		while (XIicPs_BusIsBusy(&_iicInstance));
-#else
-		_iicInstance.seekg(address, std::ios_base::beg);
-		_iicInstance.read(static_cast<char *>(buffer), size);
-#endif//emdebug		
+		_iicInstance.seekp(address, std::ios::beg);
+		_iicInstance.read(static_cast<char*>(buffer), size);
+		//std::cout.write(&static_cast<char*>(buffer)[0], size);
 		Gpio::SVSet();
 	}
+	_iicInstance.close();
 }
 
 void I2C::Write(void* buffer, DWORD address, UINT size)
 {
+	_iicInstance.open(fileName, std::ios_base::binary | std::ios_base::in | std::ios_base::out);
+	_iicInstance.is_open() ? _isDeviceAvailable = true : _isDeviceAvailable = false;
 	if (_isDeviceAvailable)
 	{
-#ifndef EM_DEBUG 
-	while (XIicPs_BusIsBusy(&_iicInstance)) {}
-		u8 addr[size + _addressSize];
-		FillAddress(address);
-		memcpy(addr, _addressBuff, _addressSize);
-		memcpy(&addr[_addressSize], buffer, size);
-		XIicPs_MasterSendPolled(&_iicInstance, addr, sizeof(addr), _slaveDeviceId | _addressBuff[2]);
-		PerfomanceCounter::WaitMs(10); // В DataSheet Write Cycle Time
-#else
-		_iicInstance.seekg(address, std::ios_base::beg);
-		_iicInstance.write(static_cast<char *>(buffer), size);
-#endif//emdebug
+		_iicInstance.seekg(address, std::ios::beg);
+		_iicInstance.write(static_cast<char *>(buffer), size*sizeof(char));
 	}
+	_iicInstance.close();
 }
 
 #endif

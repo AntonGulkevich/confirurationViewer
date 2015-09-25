@@ -45,6 +45,7 @@ public:
 		Reboot = 11, // Перезагрузка блока
 		StartCalibrate = 12, // Калибровать блок
 		GetCalibrate = 13, // Получить текущие калибровки
+		SaveUserSettings = 14, // Сохранить пользовательские настройки
 	};
 
 	enum Markers

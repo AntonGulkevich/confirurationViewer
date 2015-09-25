@@ -18,7 +18,7 @@ ChPotentiometr::ChPotentiometr(CPattern* const pattern, UINT number) : IChannelI
 	_filter = new ChannelFilter(this);
 	_rate = new ChannelRate(this);
 	for(UINT i = 0; i < static_cast<UINT>(REGISTER_ID::COUNTREGISTERS); i++)
-		registers_t[i].id = REGISTER_ID::nullptrID;
+		registers_t[i].id = REGISTER_ID::NULLID;
 
 	registers_t[static_cast<UINT>(REGISTER_ID::rNAME)] = {REGISTER_ID::rNAME, rwConstant, rtString, 0.0f, 0.0f, 0.0f, false};
 	registers_t[static_cast<UINT>(REGISTER_ID::rVALUE)] = {REGISTER_ID::rVALUE, rwVariable, rtFloat, MIN_FLOAT, MAX_FLOAT, 0.0f, false};
@@ -40,6 +40,8 @@ void ChPotentiometr::InitRegisters()
 	_channel->SetMaximumSignalLevel(registers_t[static_cast<UINT>(REGISTER_ID::rMAXLEVEL)].reg->GetValueInt());
 	_channel->SetMinimumSignalLevel(registers_t[static_cast<UINT>(REGISTER_ID::rMINLEVEL)].reg->GetValueInt());
 	_calibration->CreateKoeffTable();
+	// Съем данных для тарировки
+	_calibration->UpdateValue();
 	_filter->CreateFilterBuffer();
 	_rate->CreateRateBuffer();
 	UpdateDataToHW();

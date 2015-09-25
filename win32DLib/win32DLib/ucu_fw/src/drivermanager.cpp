@@ -46,7 +46,7 @@ void DriverManager::OnIrq(DWORD number)
 	_clock.OnPowerDown();
 	Console::TraceLine("—бой по питанию");
 	_irqManager.ClearPeripheralIrq(XPS_IRQ_INT_ID);
-	for(;;);
+	ERROR_LOOP;
 }
 
 void DriverManager::WriteEEPROM(void* buff, UINT address, UINT count)

@@ -31,7 +31,7 @@ void IChannel::CreateRegisters()
 {
 	for(UINT i = 0; i < static_cast<UINT>(REGISTER_ID::COUNTREGISTERS); i++)
 	{
-		if (registers_t[i].id != REGISTER_ID::nullptrID)
+		if (registers_t[i].id != REGISTER_ID::NULLID)
 			registers_t[i].reg = new CRegister();
 		else
 			registers_t[i].reg = nullptr;
@@ -43,7 +43,7 @@ IChannel::CheckConfigurationResult IChannel::CheckConfiguration()
 {
 	for(UINT i = 0; i < static_cast<UINT>(REGISTER_ID::COUNTREGISTERS); i++)
 	{
-		if (registers_t[i].id != REGISTER_ID::nullptrID)
+		if (registers_t[i].id != REGISTER_ID::NULLID)
 		{
 			if (!registers_t[i].reg->IsFilled())
 			{

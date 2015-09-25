@@ -14,20 +14,54 @@ class IChannel;
 class ChannelCalibration
 {
 private:
+	float* _userPassport; // Пользовательское значение паспорта
+	UINT _userPassportCount; // Длина таблицы (количество пар)
+
 	IChannel* _channel;
-	float** koeffTable; // Коэффициенты для LINEAR
-	BYTE koeffCount; // Длина таблицы (количество пар)
+	float** _koeffTable; // Коэффициенты для LINEAR
+	UINT _koeffCount; // Длина таблицы (количество пар)
+	bool _isCalibrated;
+	bool _isDeltaHRequired;
 
 	// Параметры для ручной тарировки ????
+	const UINT _measuringLength = 32;
+	bool _isMeasuring;
+	float _measuredValue;
+	UINT _currentMeasuringIndex;
+
+	float** _tarKoeffTable; // Коэффициенты для вычисления паспортного значения при тарировке
+	UINT _tarKoeffCount; // Длина таблицы (количество пар)
+
+	void CreateKoeffTable(float**& kTable, UINT& kCount, const float* pasp, const UINT paspCount);
 
 public:
-	explicit ChannelCalibration(IChannel* channel);
+
+	explicit ChannelCalibration(IChannel* channel, bool isDeltaHExist = false);
 	virtual ~ChannelCalibration() {}
 	float GetValueByKoeff(float deg) const;
 
 	void CreateClibrationRegisters() const;
 	// Построение таблицы для Linear из регистра PASSPORT или тарировки
 	void CreateKoeffTable();
+	float GetPoint(UINT index);
+	UINT GetPointsCount();
+	// Настроен вручную
+	bool IsCalibrated() { return _isCalibrated; }
+	// Требуется настройка DeltaH
+	bool IsDeltaHRequired();
+
+	// Параметры тарировки
+	float GetTarMin() const;
+	float GetTarMax() const;
+	// Тарировка
+	void StartMeasure();
+	void UpdateValue();
+	bool IsMeasuring() { return _isMeasuring; }
+	float GetMeasuredValue() { return _measuredValue / _currentMeasuringIndex; }
+	UINT GetCurrentMeasurionIndex() { return _currentMeasuringIndex; }
+	float GetTarPaspValue(float value);
+
+	void SetUserPassport(float* userPasp, UINT count);
 };
 
 #endif /* ICHANNELCALIBRATION_H_ */

@@ -151,6 +151,8 @@ void UsbTr::SendProgress(UINT stage, UINT progressVal)
 }
 #else
 #include "../utilities/console.h"
+#include <iostream>
+#include <string>
 
 DWORD UsbTr::_baseAddress = 0;
 
@@ -221,8 +223,7 @@ UINT UsbTr::ReceiveData(void* data)
 
 void UsbTr::WriteData(const void* data, UINT size)
 {
-	while (IsWriteBufferBusy()) {}
-
+	/*while (IsWriteBufferBusy()) {}
 
 	if (size == 0)
 		SendAnswer(NoWriteData);
@@ -236,8 +237,13 @@ void UsbTr::WriteData(const void* data, UINT size)
 			UCU_IOWR_32DIRECT(_baseAddress, 0x1C, ldata[i]);
 		}
 		SendAnswer(WriteBufferReady);
-	}
-
+	}*/
+	setlocale(LC_ALL, "RUS");
+	if (size < 8) return;
+	char* buff = new char[size-7];
+	memcpy(buff, &static_cast<const char*>(data)[8], size-8);
+	std::cout << buff;
+	delete[] buff;
 }
 
 UsbTr::STATUS_MASK UsbTr::WaitForStatus(UINT mask)

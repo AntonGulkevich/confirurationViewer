@@ -21,8 +21,11 @@ _baseAddress(baseAddress), _outputOffset(outputOffset), _control(control)
 	SetMinRefLevel(minRefLevel);
 	SetMaxRefLevel(maxRefLevel);
 	//SetMaxDeviation(1/3.0f);
+#pragma warning Загрублено, вернуть на 1/3 градуса после доработки всех блоков
 	SetMaxDeviation(1/2.0f); // TODO Загрублено отклонение УБРАТЬ!!!
 	SetType(SCTType::SCT);
+
+	// TODO При инициализации блока заблокировать выход на 1,5 с, для зарядки конденсаторов
 }
 
 SCTOut::~SCTOut()

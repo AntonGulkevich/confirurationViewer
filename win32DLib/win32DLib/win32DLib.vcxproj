@@ -146,9 +146,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ucu_fw\src\dllapi\memoryEmulation.cpp" />
     <ClCompile Include="ucu_fw\src\dllAPI\Factory.cpp" />
     <ClCompile Include="ucu_fw\src\dllAPI\DLLMain.cpp" />
+    <ClCompile Include="ucu_fw\src\dllapi\SharedMemory.cpp" />
     <ClCompile Include="ucu_fw\src\dllAPI\UbsLibrary.cpp" />
     <ClCompile Include="ucu_fw\src\application\cconfiguration.cpp" />
     <ClCompile Include="ucu_fw\src\application\cconstPatterns.cpp" />
@@ -221,17 +221,24 @@
     <ClCompile Include="ucu_fw\src\utilities\failmanager.cpp" />
     <ClCompile Include="ucu_fw\src\utilities\fwloader.cpp" />
     <ClCompile Include="ucu_fw\src\utilities\menu.cpp" />
+    <ClCompile Include="ucu_fw\src\utilities\menu\menuanalogparamsview.cpp" />
+    <ClCompile Include="ucu_fw\src\utilities\menu\menuchannelaction.cpp" />
+    <ClCompile Include="ucu_fw\src\utilities\menu\menuinputvalue.cpp" />
     <ClCompile Include="ucu_fw\src\utilities\menu\menuitem.cpp" />
+    <ClCompile Include="ucu_fw\src\utilities\menu\menupassportview.cpp" />
+    <ClCompile Include="ucu_fw\src\utilities\menu\menutarirovka.cpp" />
     <ClCompile Include="ucu_fw\src\utilities\menu\submenu.cpp" />
     <ClCompile Include="ucu_fw\src\utilities\m_math.cpp" />
+    <ClCompile Include="ucu_fw\src\utilities\usersettingmanager.cpp" />
     <ClCompile Include="ucu_fw\src\utilities\version.cpp" />
     <ClCompile Include="ucu_fw\src\workmanager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ucu_fw\src\dllapi\memoryEmulation.h" />
+    <ClInclude Include="ucu_fw\src\dllapi\IPerfomanceCounter.h" />
     <ClInclude Include="ucu_fw\src\dllapi\idriversiomanager.h" />
     <ClInclude Include="ucu_fw\src\dllapi\idrivermanager.h" />
     <ClInclude Include="ucu_fw\src\dllAPI\DllWrapperFactory.h" />
+    <ClInclude Include="ucu_fw\src\dllapi\SharedMemory.h" />
     <ClInclude Include="ucu_fw\src\dllAPI\Singleton.h" />
     <ClInclude Include="ucu_fw\src\dllAPI\Factory.h" />
     <ClInclude Include="ucu_fw\src\dllAPI\ICRegister.h" />
@@ -316,9 +323,15 @@
     <ClInclude Include="ucu_fw\src\utilities\failmanager.h" />
     <ClInclude Include="ucu_fw\src\utilities\fwloader.h" />
     <ClInclude Include="ucu_fw\src\utilities\menu.h" />
+    <ClInclude Include="ucu_fw\src\utilities\menu\menuanalogparamsview.h" />
+    <ClInclude Include="ucu_fw\src\utilities\menu\menuchannelaction.h" />
+    <ClInclude Include="ucu_fw\src\utilities\menu\menuinputvalue.h" />
     <ClInclude Include="ucu_fw\src\utilities\menu\menuitem.h" />
+    <ClInclude Include="ucu_fw\src\utilities\menu\menupassportview.h" />
+    <ClInclude Include="ucu_fw\src\utilities\menu\menutarirovka.h" />
     <ClInclude Include="ucu_fw\src\utilities\menu\submenu.h" />
     <ClInclude Include="ucu_fw\src\utilities\m_math.h" />
+    <ClInclude Include="ucu_fw\src\utilities\usersettingmanager.h" />
     <ClInclude Include="ucu_fw\src\utilities\version.h" />
     <ClInclude Include="ucu_fw\src\workmanager.h" />
     <ClInclude Include="ucu_fw_bsp\ps7_cortexa9_0\include\xparameters.h" />

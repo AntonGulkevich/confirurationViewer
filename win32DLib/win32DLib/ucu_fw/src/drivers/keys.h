@@ -33,8 +33,8 @@ public:
 		struct
 		{
 			KEY_STATE Enter : 1;
-			KEY_STATE Down : 1;
 			KEY_STATE Up : 1;
+			KEY_STATE Down : 1;
 			KEY_STATE Esc : 1;
 			UINT  : 28;
 		} menu;
@@ -45,7 +45,7 @@ public:
 	KEYS GetKeyState() { return _keyState; }
 	KEYS UpdateState();
 
-	bool IsBreakCombinationPressed() { UpdateState(); return _keyState.Key1 == KEY_STATE::Pressed && _keyState.Key4 == KEY_STATE::Pressed; }
+	bool IsBreakCombinationPressed() { return false; UpdateState(); return _keyState.Key1 == KEY_STATE::Pressed && _keyState.Key4 == KEY_STATE::Pressed; }
 	explicit Keys(DWORD baseAddress) : _baseAddress(baseAddress) { _keyState.Value = 0; }
 	virtual ~Keys(){};
 private:

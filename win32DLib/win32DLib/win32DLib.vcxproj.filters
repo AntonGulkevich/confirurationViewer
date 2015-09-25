@@ -252,7 +252,25 @@
     <ClCompile Include="ucu_fw\src\dllAPI\Factory.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
-    <ClCompile Include="ucu_fw\src\dllapi\memoryEmulation.cpp">
+    <ClCompile Include="ucu_fw\src\dllapi\SharedMemory.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="ucu_fw\src\utilities\usersettingmanager.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="ucu_fw\src\utilities\menu\menutarirovka.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="ucu_fw\src\utilities\menu\menupassportview.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="ucu_fw\src\utilities\menu\menuinputvalue.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="ucu_fw\src\utilities\menu\menuchannelaction.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="ucu_fw\src\utilities\menu\menuanalogparamsview.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
   </ItemGroup>
@@ -539,7 +557,28 @@
     <ClInclude Include="ucu_fw\src\dllapi\idrivermanager.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="ucu_fw\src\dllapi\memoryEmulation.h">
+    <ClInclude Include="ucu_fw\src\dllapi\SharedMemory.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="ucu_fw\src\utilities\usersettingmanager.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="ucu_fw\src\utilities\menu\menutarirovka.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="ucu_fw\src\utilities\menu\menupassportview.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="ucu_fw\src\utilities\menu\menuinputvalue.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="ucu_fw\src\utilities\menu\menuchannelaction.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="ucu_fw\src\utilities\menu\menuanalogparamsview.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="ucu_fw\src\dllapi\IPerfomanceCounter.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
   </ItemGroup>

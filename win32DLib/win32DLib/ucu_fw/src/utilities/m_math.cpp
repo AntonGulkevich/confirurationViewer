@@ -72,12 +72,12 @@ CRC32::CRC32()
 
 void CRC32::ProcessCRC(void* pData, DWORD nLen)
 {
-	const auto CRC_MASK = 0x8DD202EF;
-	auto pdata = reinterpret_cast<BYTE*>(pData);
+	const UINT CRC_MASK = 0x8DD202EFu;
+	auto bdata = reinterpret_cast<BYTE*>(pData);
 	auto crc = _crc32;
-	while (nLen--)
+	for(UINT i = 0; i < nLen; i++)
 	{
-		crc = table[static_cast<BYTE>(crc) ^ *pdata++] ^ crc >> 8;
+		crc = table[static_cast<BYTE>(crc) ^ bdata[i]] ^ crc >> 8;
 		crc ^= CRC_MASK;
 	}
 	_crc32 = crc;

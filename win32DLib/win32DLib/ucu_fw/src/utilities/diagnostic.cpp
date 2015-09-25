@@ -313,7 +313,7 @@ void Diagnostic::FillRegisterData(UINT patternNum, IOTYPES type, UINT num)
 			if (ch != nullptr)
 			{
 				for(UINT i = 0; i < static_cast<UINT>(REGISTER_ID::COUNTREGISTERS); i++)
-					if (ch->GetRegisterT(static_cast<REGISTER_ID>(i))->id != REGISTER_ID::nullptrID)
+					if (ch->GetRegisterT(static_cast<REGISTER_ID>(i))->id != REGISTER_ID::NULLID)
 					{
 						auto data = reinterpret_cast<RegisterData*>(&cdata.data[size]);
 						data->id = static_cast<BYTE>(ch->GetRegisterT(static_cast<REGISTER_ID>(i))->id);
@@ -604,7 +604,7 @@ DISPATH_RESULT Diagnostic::ProcessFlag(Flags id)
 			break;
 		case Commands::Reboot:
 			_drivers->GetDisplay()->SetTextByText("ПРЗГ");
-			for(;;);
+			ERROR_LOOP;
 			break;
 		case Commands::StartCalibrate:
 			_workManager->GetCalibrationManager()->StartCalibrationIn();
@@ -617,6 +617,11 @@ DISPATH_RESULT Diagnostic::ProcessFlag(Flags id)
 			_drivers->GetUSB()->WriteData(data, sizeof(DriversIOManager::Calibration) + 4);
 		}
 			break;
+		case Commands::SaveUserSettings:
+			_drivers->GetGpio()->SetCMWriteProtect(false);
+			_workManager->GetUserSettings()->Save();
+			_drivers->GetGpio()->SetCMWriteProtect(true);
+			break;
 		default:
 			result = drNotDispatched;
 			break;
@@ -626,18 +631,18 @@ DISPATH_RESULT Diagnostic::ProcessFlag(Flags id)
 	case Flags::DataPCReceived:
 	{
 		auto size = _drivers->GetUSB()->GetPacketSize();
-		BYTE data[64*1024];
-		_drivers->GetUSB()->ReceiveData(data);
-		auto marker = *reinterpret_cast<DWORD*>(data);
+		BYTE _inDataBuffer[64*1024];
+		_drivers->GetUSB()->ReceiveData(_inDataBuffer);
+		auto marker = *reinterpret_cast<DWORD*>(_inDataBuffer);
 		switch(marker)
 		{
 		case ChannelSettings:
-			UnpackChannelsSettings(reinterpret_cast<ChannelsSettings*>(data));
+			UnpackChannelsSettings(reinterpret_cast<ChannelsSettings*>(_inDataBuffer));
 			break;
 		case EnableOscillograph:
 		{
-			auto channelNum = *reinterpret_cast<DWORD*>(&data[4])-1;
-			auto koeff = *reinterpret_cast<DWORD*>(&data[8]);
+			auto channelNum = *reinterpret_cast<DWORD*>(&_inDataBuffer[4])-1;
+			auto koeff = *reinterpret_cast<DWORD*>(&_inDataBuffer[8]);
 			_driversIO->GetADCControl()->EnableOscillograph(channelNum, static_cast<AnalogIn::GAIN_COEFFICIENTS>(koeff));
 			_mode = DiagnosticMode::Oscillograph;
 		}
@@ -646,12 +651,12 @@ DISPATH_RESULT Diagnostic::ProcessFlag(Flags id)
 		{
 			if (_workManager->GetConfiguration()->IsInitialized())
 			{
-				auto count = (*reinterpret_cast<DWORD*>(&data[4]) & 0xF);
+				auto count = (*reinterpret_cast<DWORD*>(&_inDataBuffer[4]) & 0xF);
 				for(UINT i = 0; i < count; i++)
 				{
-					auto patternNum = *reinterpret_cast<DWORD*>(&data[8+i*12]);
-					auto channelType = *reinterpret_cast<IOTYPES*>(&data[12+i*12]);
-					auto channelNum = *reinterpret_cast<DWORD*>(&data[16+i*12]);
+					auto patternNum = *reinterpret_cast<DWORD*>(&_inDataBuffer[8+i*12]);
+					auto channelType = *reinterpret_cast<IOTYPES*>(&_inDataBuffer[12+i*12]);
+					auto channelNum = *reinterpret_cast<DWORD*>(&_inDataBuffer[16+i*12]);
 					FillRegisterData(patternNum, channelType, channelNum);
 				}
 			}
@@ -661,11 +666,11 @@ DISPATH_RESULT Diagnostic::ProcessFlag(Flags id)
 		{
 			if (_workManager->GetConfiguration()->IsInitialized())
 			{
-					DWORD patternNum = data[4];
-					auto channelType = static_cast<IOTYPES>(data[5]);
-					DWORD channelNum = data[6];
-					DWORD regId = data[7];
-				auto isEmulated = *reinterpret_cast<DWORD*>(&data[8]);
+					DWORD patternNum = _inDataBuffer[4];
+					auto channelType = static_cast<IOTYPES>(_inDataBuffer[5]);
+					DWORD channelNum = _inDataBuffer[6];
+					DWORD regId = _inDataBuffer[7];
+				auto isEmulated = *reinterpret_cast<DWORD*>(&_inDataBuffer[8]);
 					auto pattern = _workManager->GetConfiguration()->GetPatternByDeviceNum(patternNum);
 					if (pattern != nullptr)
 					{
@@ -676,7 +681,7 @@ DISPATH_RESULT Diagnostic::ProcessFlag(Flags id)
 							ch->GetRegister(static_cast<REGISTER_ID>(regId))->SetEmulated(isEmulated == 1);
 							if (isEmulated == 1)
 							{
-								auto val  = *reinterpret_cast<float*>(&data[12]);
+								auto val  = *reinterpret_cast<float*>(&_inDataBuffer[12]);
 								ch->GetRegister(static_cast<REGISTER_ID>(regId))->SetEmulatedValue(val);
 							}
 
@@ -688,33 +693,34 @@ DISPATH_RESULT Diagnostic::ProcessFlag(Flags id)
 			break;
 		case LoadCM:
 		{
-			CRC32 crc;
-			crc.ProcessCRC(&data[4], size-8);
-			auto crcR = *reinterpret_cast<DWORD*>(&data[size-4]);
+			CRC32* crc = new CRC32();
+			crc->ProcessCRC(&_inDataBuffer[4], size-8);
+			auto crcR = *reinterpret_cast<DWORD*>(&_inDataBuffer[size-4]);
 			if (size > 64*1024 - 10 - 8) // Максимальный размер КМ
 				_drivers->GetUSB()->SendAnswer(UsbTr::PACKET_RESULT::Break);
-			else if (crcR != crc.GetCRC32())
+			else if (crcR != crc->GetCRC32())
 				_drivers->GetUSB()->SendAnswer(UsbTr::PACKET_RESULT::WrongCrc);
 			else
 			{
 				_drivers->GetGpio()->SetCMWriteProtect(false);
-				_commod->WriteConfig(reinterpret_cast<char*>(&data[4]), size-8);
+				_commod->WriteConfig(reinterpret_cast<char*>(&_inDataBuffer[4]), size-8);
 				_drivers->GetUSB()->SendAnswer(UsbTr::PACKET_RESULT::Correct);
 				_drivers->GetGpio()->SetCMWriteProtect(true);
 				_commod->Init();
 			}
+			delete crc;
 		}
 		break;
 		case SetTime:
 		{
 			Clock::DATE_STRUCT dt;
 			Clock::TIME_STRUCT tm;
-			tm.sec = data[4];
-			tm.min = data[5];
-			tm.hour = data[6];
-			dt.day = data[7];
-			dt.month = data[8];
-			dt.year = data[9];
+			tm.sec = _inDataBuffer[4];
+			tm.min = _inDataBuffer[5];
+			tm.hour = _inDataBuffer[6];
+			dt.day = _inDataBuffer[7];
+			dt.month = _inDataBuffer[8];
+			dt.year = _inDataBuffer[9];
 			_drivers->GetClock()->SetDate(dt);
 			_drivers->GetClock()->SetTime(tm);
 		}
@@ -722,7 +728,7 @@ DISPATH_RESULT Diagnostic::ProcessFlag(Flags id)
 		case Calibrate:
 			if (size-4 == sizeof(DriversIOManager::Calibration))
 			{
-				if (_workManager->GetCalibrationManager()->SetCalibration(*reinterpret_cast<DriversIOManager::Calibration*>(&data[4])))
+				if (_workManager->GetCalibrationManager()->SetCalibration(*reinterpret_cast<DriversIOManager::Calibration*>(&_inDataBuffer[4])))
 				{
 					_drivers->GetUSB()->SendAnswer(UsbTr::PACKET_RESULT::Correct);
 					break;
@@ -732,7 +738,7 @@ DISPATH_RESULT Diagnostic::ProcessFlag(Flags id)
 			break;
 		case DataByAddressRequest:
 		{
-			auto address =  *reinterpret_cast<DWORD*>(&data[size-4]);
+			auto address =  *reinterpret_cast<DWORD*>(&_inDataBuffer[size-4]);
 			DWORD data[2];
 			data[0] =DataByAddressRequest;
 			data[1] = UCU_IORD_32DIRECT(address, 0);
@@ -741,7 +747,7 @@ DISPATH_RESULT Diagnostic::ProcessFlag(Flags id)
 			break;
 		case SetCMNumber:
 		{
-			auto number =  *reinterpret_cast<DWORD*>(&data[size-4]);
+			auto number =  *reinterpret_cast<DWORD*>(&_inDataBuffer[size-4]);
 			_drivers->GetGpio()->SetCMWriteProtect(false);
 			_workManager->GetCommod()->SetCMNumber((WORD)number);
 			_drivers->GetGpio()->SetCMWriteProtect(true);
@@ -749,7 +755,7 @@ DISPATH_RESULT Diagnostic::ProcessFlag(Flags id)
 			break;
 		case SetBlockNumber:
 		{
-			auto number =  *reinterpret_cast<DWORD*>(&data[size-4]);
+			auto number =  *reinterpret_cast<DWORD*>(&_inDataBuffer[size-4]);
 			_workManager->GetCalibrationManager()->SetBlockNumber(number);
 		}
 			break;

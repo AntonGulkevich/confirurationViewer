@@ -3,12 +3,13 @@
 #define TYPES_H_
 
 //#define _NO_COMPILIER
-
-//if emulation defined x-files r disabled
 #ifdef EMULATION
+#define _CRTDBG_MAP_ALLOC //memory leaks manager
 typedef unsigned int u32;
 typedef char u8;
 #define EM_DEBUG 
+#define ERROR_LOOP 
+
 #endif//end of emulation
 
 typedef unsigned int        UINT;
@@ -18,10 +19,14 @@ typedef unsigned char       BYTE;
 typedef unsigned long long  QWORD;
 typedef float               UCU_FLOAT;
 
+#ifndef ERROR_LOOP
+#define ERROR_LOOP for(;;);
+#endif
+
 #define MAJORVERSION_NUM 14
 #define VERSION_NUM 5
 #define SUBVERSION_NUM 1
-#define PBV 15
+#define PBV 16
 
 
 //#define PLD_MEMORY_CONTROL
@@ -37,12 +42,12 @@ typedef float               UCU_FLOAT;
 
 #else
 #ifdef EMULATION
+#include "dllapi/SharedMemory.h"
+#define UCU_IORD_32DIRECT(base, offset) read_dword(base, offset)
+#define UCU_IOWR_32DIRECT(base, offset, data) write_dword(base, offset, data)
 
-#define UCU_IORD_32DIRECT(base, offset) (*(volatile DWORD*)((base) + (offset)))
-#define UCU_IOWR_32DIRECT(base, offset, data) (*(volatile DWORD*)((base) + (offset))) = data
-
-#define UCU_IORD_32DIRECTF(base, offset) (*(volatile float*)((base) + (offset)))
-#define UCU_IOWR_32DIRECTF(base, offset, data) (*(volatile float*)((base) + (offset))) = data	
+#define UCU_IORD_32DIRECTF(base, offset) read_float(base, offset)
+#define UCU_IOWR_32DIRECTF(base, offset, data) write_float(base, offset, data)
 
 #else
 
@@ -253,7 +258,7 @@ enum class REGISTER_ID
 	rFILTRREADY,
 	rRATEREADY,
 	COUNTREGISTERS,
-	nullptrID
+	NULLID
 };
 
 union IOSTATE
@@ -266,7 +271,7 @@ union IOSTATE
 		UINT iostAnalogBreak           : 1; // Входные обрыв
 
 		UINT iostAnalogSyncFail        : 1; // Отказ синхронизации
-		UINT iostAnalogFail		     : 1; // Отказ АЦП
+		UINT iostAnalogFail		       : 1; // Отказ АЦП
 		UINT iostArincChNoSignal       : 1; // Аринк
 		UINT iostArincWOutLimit        : 1; // АринкВорд
 

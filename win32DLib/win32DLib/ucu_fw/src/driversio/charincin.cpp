@@ -19,7 +19,7 @@ ChArincIn::ChArincIn(CPattern* const pattern, UINT number) : IChannelIn(pattern)
 	for(UINT i = 0; i < 256; i++)
 		_word[i] = nullptr;
 	for(UINT i = 0; i < static_cast<UINT>(REGISTER_ID::COUNTREGISTERS); i++)
-		registers_t[i].id = REGISTER_ID::nullptrID;
+		registers_t[i].id = REGISTER_ID::NULLID;
 
 	registers_t[static_cast<UINT>(REGISTER_ID::rNAME)] = {REGISTER_ID::rNAME, rwConstant, rtString, 0.0f, 0.0f, 0.0f, false},
 	registers_t[static_cast<UINT>(REGISTER_ID::rVALUE)] = {REGISTER_ID::rVALUE, rwVariable, rtFloat, MIN_FLOAT, MAX_FLOAT, 0.0f, false};

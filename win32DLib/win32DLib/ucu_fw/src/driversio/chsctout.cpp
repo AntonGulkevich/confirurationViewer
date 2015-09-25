@@ -14,7 +14,7 @@ ChSCTOut::ChSCTOut(CPattern* const pattern, UINT number) : IChannelOut(pattern)
 	_ioType = IOTYPES::ioSCT;
 	_number = number;
 	for(UINT i = 0; i < static_cast<UINT>(REGISTER_ID::COUNTREGISTERS); i++)
-		registers_t[i].id = REGISTER_ID::nullptrID;
+		registers_t[i].id = REGISTER_ID::NULLID;
 
 
 	registers_t[static_cast<UINT>(REGISTER_ID::rNAME)] = {REGISTER_ID::rNAME, rwConstant, rtString, 0.0f, 0.0f, 0.0f, false};

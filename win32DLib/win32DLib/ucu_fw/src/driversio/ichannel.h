@@ -28,9 +28,9 @@ public:
 	// Нужно для диагностики
 	UINT GetPatternDeviceNum() const override; 
 	// Возвращает указатель на регистр по ID
-	CRegister* GetRegister(REGISTER_ID id) override { return (id != REGISTER_ID::nullptrID) ? registers_t[static_cast<UINT>(id)].reg : nullptr; }
+	CRegister* GetRegister(REGISTER_ID id) override { return (id != REGISTER_ID::NULLID) ? registers_t[static_cast<UINT>(id)].reg : nullptr; }
 	// Возвращает указатель на параметры регистров по ID
-	const REGISTER_TYPE* GetRegisterT(REGISTER_ID id) override  { return (id != REGISTER_ID::nullptrID) ? &registers_t[static_cast<UINT>(id)] : nullptr; }
+	const REGISTER_TYPE* GetRegisterT(REGISTER_ID id) override  { return (id != REGISTER_ID::NULLID) ? &registers_t[static_cast<UINT>(id)] : nullptr; }
 
 	// Проверка корректности конфигурации
 	virtual CheckConfigurationResult CheckConfiguration() override;

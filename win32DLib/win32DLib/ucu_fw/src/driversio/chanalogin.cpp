@@ -13,12 +13,12 @@ ChAnalogIn::ChAnalogIn(CPattern* const pattern, UINT number) : IChannelIn(patter
 	_channel = nullptr;
 	_ioType = IOTYPES::ioAnalog;
 	_number = number;
-	_calibration = new ChannelCalibration(this);
+	_calibration = new ChannelCalibration(this, true);
 	_filter = new ChannelFilter(this);
 	_rate = new ChannelRate(this);
 
 	for(UINT i = 0; i < static_cast<UINT>(REGISTER_ID::COUNTREGISTERS); i++)
-		registers_t[i].id = REGISTER_ID::nullptrID;
+		registers_t[i].id = REGISTER_ID::NULLID;
 
 	registers_t[static_cast<UINT>(REGISTER_ID::rNAME)] = {REGISTER_ID::rNAME, rwConstant, rtString, 0.0f, 0.0f, 0.0f, false};
 	registers_t[static_cast<UINT>(REGISTER_ID::rVALUE)] = {REGISTER_ID::rVALUE, rwVariable, rtFloat, MIN_FLOAT, MAX_FLOAT, 0.0f, false};
@@ -126,7 +126,8 @@ void ChAnalogIn::UpdateHWToData()
 	registers_t[static_cast<UINT>(REGISTER_ID::rVALUE)].reg->SetValue(value);
 	IOSTATE st;
 	st.dword = _channel->GetState().dword;
-
+	// Съем данных для тарировки
+	_calibration->UpdateValue();
 	//Расчет фильтра
 	_filter->UpdateValue();
 	// Расчет скорости

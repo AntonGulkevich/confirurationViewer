@@ -17,6 +17,17 @@ class ChArincIn;
 class CConfiguration: public ICConfiguration
 {
 public:
+	struct GROUP_ID
+	{
+		const char* name;
+		UNITS unit;
+		bool sign;  // ‘ормат вывода
+		int trunc; // число целых
+		int frac;  // число дробных
+	};
+
+	static const GROUP_ID Groups[];
+
 	explicit CConfiguration(WorkManager* workManager);
 	virtual ~CConfiguration();
 
@@ -34,20 +45,18 @@ public:
 	BYTE GetChannelHWNum(IChannel* ch) override;
 	void Instance() override;
 	// ¬озвращает указатель на регистр по ID
-	CRegister* GetRegister(REGISTER_ID id) override { return (id != REGISTER_ID::nullptrID) ? registers_t[static_cast<UINT>(id)].reg : nullptr; }
+	CRegister* GetRegister(REGISTER_ID id) override { return (id != REGISTER_ID::NULLID) ? registers_t[static_cast<UINT>(id)].reg : nullptr; }
 	// ¬озвращает указатель на параметры регистров по ID
-	const IChannel::REGISTER_TYPE* GetRegisterT(REGISTER_ID id) override { return (id != REGISTER_ID::nullptrID) ? &registers_t[static_cast<UINT>(id)] : nullptr; }
+	const IChannel::REGISTER_TYPE* GetRegisterT(REGISTER_ID id) override { return (id != REGISTER_ID::NULLID) ? &registers_t[static_cast<UINT>(id)] : nullptr; }
 
 	bool IsInitialized() const override	{ return _isInitialized; }
 	// ѕодготовка последовательности расчета (поиск в грубину)
-	void PrepareLogicSequence() override;
-	void AddChannelToList(IChannel* ch) override;
+	 void PrepareLogicSequence() override;
 	IO_GROUP_STATE GetState() override;
 	std::vector<IChannel*>& GetAllChannels() override { return channelList; }
 	IChannel* GetArincIn(UINT number) override;
 	IChannel* GetArincOut(UINT number) override;
 	IChannel* GetCommandOut(UINT number) override;
-
 	const char* GetCfgNumberStr() { return cfgNumberBuff; }
 private:
 
@@ -75,6 +84,8 @@ private:
 	void CreateIndexDeviceNum();
 	void CreateChannelIndex();
 	void DefineChannelFailIndex(); // —оздание индекса дл€ формировани€ структуры state	
+	void AddChannelToList(IChannel* ch) override;
+
 	std::vector<CPattern*> patterns;
 	CPattern* deviceNumIndex[256];
 	std::vector<CONNECTION> connections;

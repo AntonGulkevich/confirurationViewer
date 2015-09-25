@@ -11,22 +11,25 @@ void SubMenu::Next()
 {
 	if (_isInSubMenu)
 		GetCurrentSubMenu()->Next();
-	else
+	else if (!GetCurrentLocalItem()->IsActive())
 		_currentIndex = (_currentIndex + 1) % _items.size();
-
+	else
+		GetCurrentLocalItem()->Next();
 }
 
 void SubMenu::Prev()
 {
 	if (_isInSubMenu)
 		GetCurrentSubMenu()->Prev();
-	else
+	else if (!GetCurrentLocalItem()->IsActive())
 	{
 		if (_currentIndex  == 0)
 			_currentIndex= _items.size()-1;
 		else
 			_currentIndex--;
 	}
+	else
+		GetCurrentLocalItem()->Prev();
 }
 
 
@@ -36,11 +39,12 @@ void SubMenu::Enter()
 		GetCurrentSubMenu()->Enter();
 	else
 	{
-		if (_items[_currentIndex]->IsSubMenu())
+		if (GetCurrentLocalItem()->IsSubMenu())
 		{
 			_isInSubMenu = true;
 			GetCurrentSubMenu()->_currentIndex = 0;
-		}
+		} else
+			GetCurrentLocalItem()->Enter();
 	}
 }
 
@@ -49,20 +53,26 @@ bool SubMenu::Exit()
 {
 	if (_isInSubMenu)
 	{
-		if (GetCurrentSubMenu()->Exit())
+		if (GetCurrentLocalItem()->Exit())
 			_isInSubMenu = false;
 		return false;
 	}
 	else
-		return true;
+		if (GetCurrentLocalItem()->IsSubMenu())
+			return true;
+		else
+			GetCurrentLocalItem()->Exit();
 }
 
-const char* SubMenu::GetElementName() const
+const char* SubMenu::GetElementName()
 {
 	if (_isInSubMenu)
 		return GetCurrentSubMenu()->GetElementName();
 	else
-		return GetCurrentLocalItem()->MenuItem::GetElementName();
+		if (GetCurrentLocalItem()->IsSubMenu())
+			return GetCurrentLocalItem()->MenuItem::GetElementName();
+		else
+			GetCurrentLocalItem()->GetElementName();
 }
 
 const DWORD SubMenu::GetPoints() const
@@ -70,5 +80,8 @@ const DWORD SubMenu::GetPoints() const
 	if (_isInSubMenu)
 		return GetCurrentSubMenu()->GetPoints();
 	else
-		return GetCurrentLocalItem()->MenuItem::GetPoints();
+		if (GetCurrentLocalItem()->IsSubMenu())
+			return GetCurrentLocalItem()->MenuItem::GetPoints();
+		else
+			GetCurrentLocalItem()->GetPoints();
 }

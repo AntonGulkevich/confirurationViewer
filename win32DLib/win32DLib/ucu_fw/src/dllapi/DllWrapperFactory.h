@@ -12,6 +12,8 @@
 #include "../application/cconfiguration.h"
 #include "../drivermanager.h"
 #include "../driversiomanager.h"
+#include "../drivers/perfomancecounter.h"
+
 
 class DllWrapperFactory
 {
@@ -23,6 +25,7 @@ public:
 	virtual CRegister * __stdcall CreateCRegister() = 0;
 	virtual DriverManager * __stdcall CreateDriverManager() = 0;
 	virtual DriversIOManager *__stdcall CreateDriversIoManager() = 0;
+	virtual PerfomanceCounter *__stdcall CreatePerfomanceCounter(DWORD baseAddress) = 0;
 };
 
 #endif // !defined(AFX_DLLWRAPPERFACTORY_H__6878082E_F1BB_4FA5_A493_45E9EF20959D__INCLUDED_)

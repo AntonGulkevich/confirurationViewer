@@ -47,7 +47,6 @@ void FlagManager::Process()
 				{
 					if (dispatchers[p][f][i]->Process(static_cast<Flags>(f)) == drDispatched)
 					{
-						Console::TraceLine("f=%d, p=%d", f, p);
 						_pc->ProcessStop();
 						return;
 					}

@@ -20,7 +20,7 @@ ChArincOut::ChArincOut(CPattern* const pattern, UINT number) : IChannelOut(patte
 	for(UINT i = 0; i < 256; i++)
 		_word[i] = nullptr;
 	for(UINT i = 0; i < static_cast<UINT>(REGISTER_ID::COUNTREGISTERS); i++)
-		registers_t[i].id = REGISTER_ID::nullptrID;
+		registers_t[i].id = REGISTER_ID::NULLID;
 
 
 

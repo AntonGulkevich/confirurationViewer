@@ -32,6 +32,7 @@ WorkManager::WorkManager(DriversIOManager* driversIO, DriverManager* drivers) : 
 	_config = new CConfiguration(this);
 	_failManager = new FailManager(drivers->GetDisplay(), _config);
 	_calibrationManager = new CalibrationManager(_drivers, _driversIO);
+	_userSettings = new UserSettingManager(_config, _commod, _drivers->GetClock());
 	_menu = new Menu(this);
 }
 
@@ -42,11 +43,14 @@ void WorkManager::Init() const
 
 	_commod->Init();
 	if (!_drivers->GetKeys()->IsBreakCombinationPressed())
+	{
 		if (_config->LoadConfig() != CConfiguration::LOAD_RESULT::OK)
 		{
 			_drivers->GetDisplay()->SetTextByText("A210");
-			for(;;);
-		}
+			ERROR_LOOP;
+		}else
+			_userSettings->Load();
+	}
 	_menu->CreateConfigMenu();
 	_drivers->GetDisplay()->RunningZero();
 }

@@ -12,6 +12,7 @@
 #include "interfaces/idispatchflags.h"
 #include "interfaces/iusingflags.h"
 #include "types.h"
+#include "utilities/usersettingmanager.h"
 
 
 class Commod;
@@ -35,6 +36,7 @@ private:
 	FailManager* _failManager;
 	CalibrationManager* _calibrationManager;
 	Menu* _menu;
+	UserSettingManager* _userSettings;
 
 public:
 	WorkManager(DriversIOManager* driversIO, DriverManager* drivers);
@@ -49,6 +51,7 @@ public:
 	CConfiguration* GetConfiguration() const override	{ return _config; }
 	FailManager* GetFailManager() const override	{ return _failManager; }
 	CalibrationManager* GetCalibrationManager() const override	{ return _calibrationManager; }
+	UserSettingManager* GetUserSettings() const { return _userSettings; }
 
 };
 

@@ -35,6 +35,11 @@ void Console::SendData(const char* str, bool isNewLine)
 		UINT marker = 0x0C04501E;
 		BYTE buff[1024 + 8];
 
+#ifdef EMULATION 
+		memset(buff, 0, 1024 + 8);
+#endif
+
+
 		memcpy(buff, &marker, 4);
 		memcpy(&buff[4], &len, 4);
 		memcpy(&buff[8], str, len - (isNewLine ? 2 : 0));

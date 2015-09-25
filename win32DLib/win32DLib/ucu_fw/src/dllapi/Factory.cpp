@@ -27,4 +27,9 @@ DriversIOManager* Factory::CreateDriversIoManager()
 {
 	return (new DriversIOManager());
 }
+
+PerfomanceCounter* Factory::CreatePerfomanceCounter(DWORD baseAddress)
+{
+	return (new PerfomanceCounter(baseAddress));
+}
 #endif

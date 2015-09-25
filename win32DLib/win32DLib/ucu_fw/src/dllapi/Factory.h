@@ -22,6 +22,7 @@ public:
 	CRegister * __stdcall CreateCRegister() override;
 	DriverManager * __stdcall CreateDriverManager() override;
 	DriversIOManager *__stdcall CreateDriversIoManager() override;
+	PerfomanceCounter *__stdcall CreatePerfomanceCounter(DWORD baseAddress) override;
 };
 
 typedef CSingleton<Factory> FactorySingleton;

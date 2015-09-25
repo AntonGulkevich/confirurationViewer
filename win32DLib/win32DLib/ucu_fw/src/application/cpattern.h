@@ -60,9 +60,9 @@ public:
 
 	VALIDIO_RESULT ValidIO(IOTYPES type, UINT index);		// inOut - 0 входы, 1 - выходы
 	// Возвращает указатель на регистр по ID
-	CRegister* GetRegister(REGISTER_ID id) { return (id != REGISTER_ID::nullptrID) ? registers_t[static_cast<UINT>(id)].reg : nullptr; }
+	CRegister* GetRegister(REGISTER_ID id) { return (id != REGISTER_ID::NULLID) ? registers_t[static_cast<UINT>(id)].reg : nullptr; }
 	// Возвращает указатель на параметры регистров по ID
-	const IChannel::REGISTER_TYPE* GetRegisterT(REGISTER_ID id) { return (id != REGISTER_ID::nullptrID) ? &registers_t[static_cast<UINT>(id)] : nullptr; }
+	const IChannel::REGISTER_TYPE* GetRegisterT(REGISTER_ID id) { return (id != REGISTER_ID::NULLID) ? &registers_t[static_cast<UINT>(id)] : nullptr; }
 	CConfiguration* GetConfig() const	{ return _config;}
 private:
 	friend void CConfiguration::PrepareLogicSequence();

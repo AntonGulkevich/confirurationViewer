@@ -18,6 +18,10 @@
 #include "../application/cpattern.h"
 #include "../driversio/chanalogin.h"
 #include "../utilities/commod.h"
+#include "menu/menuanalogparamsview.h"
+#include "menu/menuchannelaction.h"
+#include "menu/menupassportview.h"
+#include "menu/menutarirovka.h"
 
 
 Menu::Menu(WorkManager* workManager) : _workManager(workManager), _keys(workManager->GetDrivers()->GetKeys()), _display(workManager->GetDrivers()->GetDisplay())
@@ -74,21 +78,21 @@ void Menu::CreateConfigMenu()
 				auto chmenu = new SubMenu(CreateNameByGroup(io->GetRegister(REGISTER_ID::rGROUP)->GetValueUInt(), io->GetRegister(REGISTER_ID::rSUBGROUP)->GetValueUInt()), IS_IN(io->GetType()) ? 0 : outPoints);
 				if (IS_IN(io->GetType()) && io->GetRegister(REGISTER_ID::rPASSPORT)!= nullptr &&  io->GetRegister(REGISTER_ID::rPASSPORT)->IsFilled())
 				{
-					chmenu->AddItem(new MenuItem("НСР "));
+					chmenu->AddItem(new MenuTarirovka(io->GetChCalibration(), "НСР "));
 					auto pasp = new SubMenu("ПАСП");
 					chmenu->AddItem(pasp);
-						pasp->AddItem(new MenuItem("h   ")); // Просмотр метрических параметров
+						pasp->AddItem(new MenuPassportView(io, "h   ")); // Просмотр метрических параметров
 						if (io->GetType() == ioAnalog && io->GetRegister(REGISTER_ID::rTYPE)->GetValueUInt() != (UINT)ChAnalogIn::ANALOG_TYPE::NPT)
-							pasp->AddItem(new MenuItem("y   ")); // Просмотр угловых параметров
+							pasp->AddItem(new MenuAnalogParamsView(io, "y   ")); // Просмотр угловых параметров
 					chmenu->AddItem(new MenuItem("СБРС"));
-					chmenu->AddItem(new MenuItem("ПРС "));
+					chmenu->AddItem(new MenuChannelAction(io, MenuChannelAction::ACTIONS::ShowValue, "ПРС "));
 				}
-				else if (io->GetType() == ioAnalog && !io->GetRegister(REGISTER_ID::rPASSPORT)->IsFilled())
+				else if (io->GetType() == ioAnalog && (io->GetRegister(REGISTER_ID::rPASSPORT)== nullptr || !io->GetRegister(REGISTER_ID::rPASSPORT)->IsFilled()))
 				{
-					chmenu->AddItem(new MenuItem("ПРС "));
+					chmenu->AddItem(new MenuChannelAction(io, MenuChannelAction::ACTIONS::ShowValue, "ПРС "));
 					auto pasp = new SubMenu("ПАСП");
 					chmenu->AddItem(pasp);
-						pasp->AddItem(new MenuItem("y   ")); // Просмотр угловых параметров
+						pasp->AddItem(new MenuAnalogParamsView(io, "y   ")); // Просмотр угловых параметров
 
 				}
 				else if (IS_OUT(io->GetType()))

@@ -16,6 +16,8 @@ private:
 
 public:
 	const DWORD COMMOD_SERIAL_NUM_ADDRESS = 64 * 1024 - 10;
+	const DWORD START_SAVE_SETTING_ADDRESS = 110*1024;
+	const DWORD OLD_START_SAVE_SETTING_ADDRESS = 120*1024;
 
 	explicit Commod(I2C* i2c) : _i2c(i2c)	{ opened = -1; ptr = 0; }
 	virtual ~Commod()	{};
@@ -28,13 +30,16 @@ public:
 	void Close()	{ opened = -1; }
 	void ShowConfig()const{};	// Показать конфигурацию в терминал
 	bool IsConfigurationAvaible() const	{ return cFat.size() > 0; }
-
 	void WriteConfig(char* buffer, UINT size) const;
 	void ReadConfig(char* buffer);
 	UINT GetConfigSize() { return cFat.size() == 0 ? 0 : cFat[cFat.size()-1].address + cFat[cFat.size()-1].size; }
 	DWORD GetCMNumber() const;
 	void SetCMNumber(WORD number);
 	const char* GetCMNumberStr() const	{ return cmNumberBuff; }
+
+	void WriteSettings(char* buffer, UINT size) const;
+	void ReadSettings(char* buffer);
+
 
 private:
 	struct FAT
