@@ -147,6 +147,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Configuration_Viewer.cpp" />
+    <ClCompile Include="StrategyDeployment .cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="StrategyDeployment .h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

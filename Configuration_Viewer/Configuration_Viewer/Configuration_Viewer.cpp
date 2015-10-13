@@ -3,22 +3,14 @@
 #include <crtdbg.h>
 #include <windows.h>
 #include <iostream>
-#include <memory.h>
 #include <string>
+
 #define EMULATION
-#include "ucu_fw/src/dllapi/factory.h"
-
-
-
 #define CLOCK_FILE_SIZE 64
 #define EEPROMFILE_SIZE 128*1024
 
-#ifdef _DEBUG
-#ifndef DBG_NEW
-#define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
-#define new DBG_NEW
-#endif
-#endif  // _DEBUG
+#include "ucu_fw/src/dllapi/factory.h"
+#include "StrategyDeployment .h"
 
 typedef Factory * (__stdcall *DLLGETFACTORY)(void);
 
