@@ -1,7 +1,13 @@
 ﻿#pragma once
 
 #include <string>
-#include <vector>
+#include <list>
+#include <windows.h>
+#include <memory.h>
+#include <iostream>
+#include <stdio.h>
+#include <stdio.h>
+
 class StrategyDeployment 
 {
 private:
@@ -14,8 +20,9 @@ private:
 	bool createCompressedFiled;
 	short zipCompressionLevel;//1-9
 
-	void * hInstDll;
-	std::vector <std::string *> logVector;
+	FILE *commodFile;
+	HINSTANCE hInstDll;
+	std::list<std::string> logList;
 
 	struct Fat {
 		unsigned int address;
@@ -42,17 +49,21 @@ public:
 
 	//compression
 	bool zip(const std::string &sourceFileName, const std::string zippedFileName);
-	bool unzip();
+	bool unzip(const std::string zippedFileName) const;
 
 	//operations with files
-	bool saveFile();
-	bool openfile();
-	
+	bool saveFile(const std::string fileName);
+	bool openfile(const std::string fileName);
+	bool isFileExists(const std::string& name) const
+	{
+		struct stat buffer;
+		return (stat(name.c_str(), &buffer) == 0);
+	}
+	bool convert();
 	//log
 	bool saveLog();
 
-	void execute();
-	~StrategyDeployment(){};	
+	~StrategyDeployment();	
 };
 
 

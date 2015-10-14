@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="Configuration_Viewer.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
