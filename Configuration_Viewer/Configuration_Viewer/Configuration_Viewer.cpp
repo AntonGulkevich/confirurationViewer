@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
 	//example: -D:\commod.bin -a -7 
 	setlocale(LC_ALL, "RUS");
 	//access to dll
-	auto hInstDll = LoadLibrary(_T("win32DLib.dll"));
+	auto hInstDll = LoadLibrary(_T("D:\\ubs\\Dev\\lib\\win32DLib\\x64\\Debug\\win32dlib.dll"));
 	if (!hInstDll) cout << ("Failed to load dll\n");
 	else cout << "Dll loaded successfully\n";
 	auto pDllGetFactory = reinterpret_cast<DLLGETFACTORY>(GetProcAddress(hInstDll, "returnFactory"));
@@ -99,9 +99,11 @@ int main(int argc, char* argv[])
 	cout << "Configuration file validation: " << drManager->getI2cCommodFileName() << endl;
 	//auto validConfig = testWorkManager->validateConfig();
 
-	StrategyDeployment manager("string");
+	StrategyDeployment manager("C:\\Users\\Gulkevich_A\\Desktop\\current\\commod.bin");
+	manager.convert();
+	manager.showLog();
 
-	manager.zip("README.txt", "README.zip");
+
 
 
 	//better to free library, be aware of memory leak. (automatically free library when there is no process using it)

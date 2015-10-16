@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿#ifndef STRATEGYDEPLOYMENT_H
+#define STRATEGYDEPLOYMENT_H
 
 #include <string>
 #include <list>
@@ -6,8 +7,17 @@
 #include <memory.h>
 #include <iostream>
 #include <stdio.h>
-#include <stdio.h>
+#include <sstream>
+#include <vector>
+//#include <regex>
+#include <boost/regex.hpp>
 
+#define HEADER_SIZE 256
+#define CLOCK_FILE_SIZE 64
+#define EEPROMFILE_SIZE 128*1024
+
+#define DELIMITER "GENERAL"
+#include "SplitString.h"
 class StrategyDeployment 
 {
 private:
@@ -20,7 +30,9 @@ private:
 	bool createCompressedFiled;
 	short zipCompressionLevel;//1-9
 
-	FILE *commodFile;
+	FILE* commodFile;
+	long commodFileSize;
+
 	HINSTANCE hInstDll;
 	std::list<std::string> logList;
 
@@ -52,18 +64,25 @@ public:
 	bool unzip(const std::string zippedFileName) const;
 
 	//operations with files
-	bool saveFile(const std::string fileName);
+	bool saveFile(const std::string fileName, char *buffer, long size);
 	bool openfile(const std::string fileName);
 	bool isFileExists(const std::string& name) const
 	{
 		struct stat buffer;
 		return (stat(name.c_str(), &buffer) == 0);
 	}
+	long getFileSize(std::string filename) const
+	{
+		struct stat stat_buf;
+		int rc = stat(filename.c_str(), &stat_buf);
+		return rc == 0 ? stat_buf.st_size : -1;
+	}
 	bool convert();
 	//log
 	bool saveLog();
+	void showLog();
 
 	~StrategyDeployment();	
 };
-
-
+void replaceAll(std::string& str, const std::string& from, const std::string& to);
+#endif STRATEGYDEPLOYMENT_H

@@ -102,10 +102,12 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <PrecompiledHeaderFile />
+      <AdditionalIncludeDirectories>D:\Program Files %28x86%29\boost_1_59_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>D:\Program Files %28x86%29\boost_1_59_0\lib64-msvc-14.0;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -144,9 +146,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Configuration_Viewer.cpp" />
+    <ClCompile Include="SplitString.cpp" />
     <ClCompile Include="StrategyDeployment .cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="SplitString.h" />
     <ClInclude Include="StrategyDeployment .h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
