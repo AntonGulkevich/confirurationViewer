@@ -71,46 +71,11 @@ int main(int argc, char* argv[])
 	//-commodFileName(destination of commod.bin) -a(parse) -z(zip only if parsed) -7(zip level) -s(save zipped file to the same location as unzipped)
 	//example: -D:\commod.bin -a -7 
 	setlocale(LC_ALL, "RUS");
-	//access to dll
-	auto hInstDll = LoadLibrary(_T("D:\\ubs\\Dev\\lib\\win32DLib\\x64\\Debug\\win32dlib.dll"));
-	if (!hInstDll) cout << ("Failed to load dll\n");
-	else cout << "Dll loaded successfully\n";
-	auto pDllGetFactory = reinterpret_cast<DLLGETFACTORY>(GetProcAddress(hInstDll, "returnFactory"));
-	auto pMyFactory = (pDllGetFactory)();
-	if (pMyFactory == nullptr) return 0;
-	//end of dll access
-
-	isLittleEndian() ? cout << "Little" : cout << "Big"; cout << "-endian machine." << endl;
-	string fileNameToExist = "C:\\Users\\Gulkevich_A\\Desktop\\current\\ubs dll\\configViewer\\";
-
-	isFileExists(fileNameToExist + "clock.bin") ? cout << "clock file exists" << endl : cout << createClock(fileNameToExist + "clock.bin") << endl;
-	isFileExists(fileNameToExist + "eeprom.bin") ? cout << "eeprom file exists" << endl : cout << createEeprom(fileNameToExist + "eeprom.bin") << endl;
-
-
-	const string commodToValidateFileName = "\\\\fs\\Group Projects\\UBS\\База конфигураций\\174 УБС\\commod.bin";
-
-	cout << "Initialization of DriversIOManager, DriverManager, WorkManager, CConfiguration\n" << endl;
-
-
-	auto drIoManager = static_cast<DriversIOManager *>(pMyFactory->CreateDriversIoManager());
-	auto drManager = static_cast<DriverManager *>(pMyFactory->CreateDriverManager());
-	drManager->setI2cCommodFileName(commodToValidateFileName);
-	auto testWorkManager = static_cast<WorkManager *>(pMyFactory->CreateWorkManager(drIoManager, drManager));
-	cout << "Configuration file validation: " << drManager->getI2cCommodFileName() << endl;
-	//auto validConfig = testWorkManager->validateConfig();
 
 	StrategyDeployment manager("C:\\Users\\Gulkevich_A\\Desktop\\current\\commod.bin");
-	manager.convert();
+	//manager.convert();
+	manager.validateCurrentConfiguration();
 	manager.showLog();
-
-
-
-
-	//better to free library, be aware of memory leak. (automatically free library when there is no process using it)
-	FreeLibrary(hInstDll);
-	cout << "Library successfully freed." << endl;
-
-
 	system("PAUSE");
 	_CrtDumpMemoryLeaks();
 	return 0;

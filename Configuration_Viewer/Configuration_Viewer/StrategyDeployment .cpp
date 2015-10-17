@@ -1,4 +1,5 @@
 ﻿#include "StrategyDeployment .h"
+#include <tchar.h>
 
 
 StrategyDeployment::StrategyDeployment(const std::string commodFileName_) :
@@ -8,11 +9,9 @@ StrategyDeployment::StrategyDeployment(const std::string commodFileName_) :
 	parseEnabled = false;
 	saveToSameFolder = true;
 	zipCompressionLevel = 7;
-	createCompressedFiled = false;
+	createCompressedFile = false;
 	zipLocation = "D:\\Program Files (x86)\\7-Zip\\7z.exe";
-	hInstDll = nullptr;
 	commodFile = nullptr;
-	openfile(commodFileName);
 }
 
 bool StrategyDeployment::zip(const std::string& sourceFileName, const std::string zippedFileName) 
@@ -55,10 +54,10 @@ bool StrategyDeployment::unzip(const std::string zippedFileName) const
 	return true;
 }
 
-bool StrategyDeployment::saveFile(const std::string fileName, char *buffer, long size)
+bool StrategyDeployment::saveFile(const std::string fileName, unsigned char *buffer, long size, const std::string &param)
 {
 	FILE *saveFile;
-	if (fopen_s(&saveFile, fileName.c_str(), "w+b")!=0)
+	if (fopen_s(&saveFile, fileName.c_str(), param.c_str())!=0)
 	{
 		logList.push_back("Unable to open file for write: " + fileName + ". Error: "+ std::to_string(GetLastError()));
 		return false;
@@ -70,6 +69,17 @@ bool StrategyDeployment::saveFile(const std::string fileName, char *buffer, long
 	}
 	fclose(saveFile);
 	return true;
+}
+
+bool StrategyDeployment::saveFile(const std::string fileName,  std::vector<unsigned char> vecToSave)
+{
+	int size = vecToSave.size();
+	unsigned char * buffer = new unsigned char[size];
+	stdext::checked_array_iterator<unsigned char *> chkd_test_array(buffer, size);
+	std::copy_n(vecToSave.begin(), size, chkd_test_array);
+	bool processOk = saveFile(fileName, buffer, size, "w+b");
+	delete[] buffer;
+	return processOk;
 }
 
 bool StrategyDeployment::openfile(const std::string fileName)
@@ -183,25 +193,54 @@ bool StrategyDeployment::convert()
 		delete[] fillStr;
 	}
 	/*create new header for converted file*/
-	std::vector<char> headerNew;
-	headerNew.resize(HEADER_SIZE, 0xFF);
+	std::vector<BYTE> headerNew;
 	auto start = 0;
 	for (auto it = headerList.begin(); it != headerList.end(); ++it)
 	{
-		headerNew.insert(headerNew.begin(), static_cast<char>(((*it).address & (0xFF << 8)) >> 8));
-		headerNew.insert(headerNew.begin(), static_cast<char>(((*it).address & (0xFF << 16)) >> 16));
+		headerNew.push_back(static_cast<BYTE>(((*it).address & (0xFF << 8)) >> 8));
+		headerNew.push_back(static_cast<BYTE>(((*it).address & (0xFF << 16)) >> 16));
 
-		headerNew.insert(headerNew.begin(), static_cast<char>(((*it).size & (0xFF << 0)) >> 0));
-		headerNew.insert(headerNew.begin(), static_cast<char>(((*it).size & (0xFF << 8)) >> 8));
+		headerNew.push_back(static_cast<BYTE>(((*it).size & (0xFF << 0)) >> 0));
+		headerNew.push_back(static_cast<BYTE>(((*it).size & (0xFF << 8)) >> 8));
 	}
-	headerNew.resize(HEADER_SIZE);
-	std::string resultStr(headerNew.begin(), headerNew.end());
+	for (size_t headerVecotrSize = headerNew.size(); headerVecotrSize != HEADER_SIZE; ++headerVecotrSize)
+		headerNew.push_back(0xFF);
+	//done creating new header
+
+	bool isOk = saveFile(commodFileName + "_a", headerNew);
+	std::string resultStr;
 	resultStr.append(dataString);
-	saveFile(commodFileName + "_a", _strdup(resultStr.c_str()), resultStr.size());
+	isOk=isOk&saveFile(commodFileName + "_a", reinterpret_cast<unsigned char*>(_strdup(resultStr.c_str())), resultStr.size(), "a+b");
+
+	isOk ? logList.push_back("File: " + commodFileName + " sucsessfully converted to\nFile: " + commodFileName + "_a.") :
+		logList.push_back("Error converting file " + commodFileName);
 
 	delete[] header;
 	delete[] dataToParse;
-	return true;
+	return isOk;
+}
+
+bool StrategyDeployment::validateCurrentConfiguration()
+{
+	auto hInstDll = LoadLibrary(_T("D:\\ubs\\Dev\\lib\\win32DLib\\x64\\Debug\\win32dlib.dll"));
+	hInstDll!=nullptr ? logList.push_back("Dll loaded successfully.") : logList.push_back("Failed to load dll\n");
+	auto pDllGetFactory = reinterpret_cast<DLLGETFACTORY>(GetProcAddress(hInstDll, "returnFactory"));
+	auto pMyFactory = (pDllGetFactory)();
+	if (pMyFactory == nullptr) return 0;
+	auto drIoManager = static_cast<DriversIOManager *>(pMyFactory->CreateDriversIoManager());
+	auto drManager = static_cast<DriverManager *>(pMyFactory->CreateDriverManager());
+	drManager->setI2cCommodFileName(commodFileName);
+	auto testWorkManager = static_cast<WorkManager *>(pMyFactory->CreateWorkManager(drIoManager, drManager));
+	logList.push_back("Configuration file validation: " + drManager->getI2cCommodFileName());
+	auto validConfig = testWorkManager->validateConfig();
+
+
+
+
+	//better to free library, be aware of memory leak. (automatically free library when there is no process using it)
+	FreeLibrary(hInstDll);
+	logList.push_back("Library successfully freed.");
+	return validConfig;
 }
 
 void StrategyDeployment::showLog()
@@ -213,7 +252,6 @@ void StrategyDeployment::showLog()
 StrategyDeployment::~StrategyDeployment()
 {
 	if (commodFile != nullptr) fclose(commodFile);
-	if (hInstDll != nullptr) FreeLibrary(hInstDll);
 }
 
 void replaceAll(std::string& str, const std::string& from, const std::string& to) {
