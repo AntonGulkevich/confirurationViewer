@@ -234,9 +234,6 @@ bool StrategyDeployment::validateCurrentConfiguration()
 	logList.push_back("Configuration file validation: " + drManager->getI2cCommodFileName());
 	auto validConfig = testWorkManager->validateConfig();
 
-
-
-
 	//better to free library, be aware of memory leak. (automatically free library when there is no process using it)
 	FreeLibrary(hInstDll);
 	logList.push_back("Library successfully freed.");

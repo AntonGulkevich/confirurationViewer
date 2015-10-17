@@ -62,13 +62,11 @@ public:
 	bool saveFile(const std::string fileName, unsigned char *buffer, long size, const std::string &param);
 	bool saveFile(const std::string fileName, const std::vector<unsigned char> vecToSave);
 	bool openfile(const std::string fileName);
-	bool isFileExists(const std::string& name) const
-	{
+	bool isFileExists(const std::string& name) const{
 		struct stat buffer;
 		return (stat(name.c_str(), &buffer) == 0);
 	}
-	long getFileSize(std::string filename) const
-	{
+	long getFileSize(std::string filename) const{
 		struct stat stat_buf;
 		int rc = stat(filename.c_str(), &stat_buf);
 		return rc == 0 ? stat_buf.st_size : -1;
