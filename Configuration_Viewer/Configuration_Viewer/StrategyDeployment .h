@@ -6,15 +6,17 @@
 #include <windows.h>
 #include <iostream>
 #include <stdio.h>
+#include <tchar.h>
 #include <boost/regex.hpp>
 
 #define HEADER_SIZE 256
 #define CLOCK_FILE_SIZE 64
 #define EEPROMFILE_SIZE 128*1024
+#undef  EM_DEBUG
 
 #define DELIMITER "GENERAL"
 #include "SplitString.h"
-#include "ucu_fw/src/dllapi/factory.h"
+#include "D:\ubs\Dev\lib\win32DLib\win32DLib\ucu_fw\src\dllapi/factory.h"
 class StrategyDeployment 
 {
 private:
@@ -57,6 +59,7 @@ public:
 	//compression
 	bool zip(const std::string &sourceFileName, const std::string zippedFileName);
 	bool unzip(const std::string zippedFileName) const;
+	bool to_zip();
 
 	//operations with files
 	bool saveFile(const std::string fileName, unsigned char *buffer, long size, const std::string &param);
@@ -73,10 +76,12 @@ public:
 	}
 	bool convert();
 	bool validateCurrentConfiguration();
+	bool loadConfiguration();
 	//log
 	bool saveLog();
 	void showLog();
-
+	//interface
+	bool execute();
 	~StrategyDeployment();	
 };
 void replaceAll(std::string& str, const std::string& from, const std::string& to);

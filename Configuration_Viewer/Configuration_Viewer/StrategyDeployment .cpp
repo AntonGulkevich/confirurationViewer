@@ -1,33 +1,34 @@
 ﻿#include "StrategyDeployment .h"
-#include <tchar.h>
-
 
 StrategyDeployment::StrategyDeployment(const std::string commodFileName_) :
 	commodFileName(commodFileName_)
 {
-	zipEnabled = false;
-	parseEnabled = false;
+	zipEnabled = true;
+	parseEnabled = true;
 	saveToSameFolder = true;
 	zipCompressionLevel = 7;
-	createCompressedFile = false;
-	zipLocation = "D:\\Program Files (x86)\\7-Zip\\7z.exe";
+	createCompressedFile = true;
+	commodFileSize = 0;
+	zipLocation = "";
 	commodFile = nullptr;
 }
 
 bool StrategyDeployment::zip(const std::string& sourceFileName, const std::string zippedFileName) 
 {
+	zipLocation = "D:\\Program Files (x86)\\7-Zip\\7z.exe";
+
 	STARTUPINFOA si;
 	PROCESS_INFORMATION pi;
 	ZeroMemory(&si, sizeof(si));
 	si.cb = sizeof(si);
 	ZeroMemory(&pi, sizeof(pi));
-	auto appParam = "7z a -tzip -mx" + std::to_string(zipCompressionLevel) + "\"" + zippedFileName +"\"" + " \"" + sourceFileName + "\"";
+	auto appParam = "7z a -tzip -mx" + std::to_string(zipCompressionLevel) + " \"" + zippedFileName +"\"" + " \"" + sourceFileName + "\"";
 	if (!CreateProcessA(zipLocation.c_str(),
 		_strdup(appParam.c_str()),
 		nullptr,           // Process handle not inheritable
 		nullptr,           // Thread handle not inheritable
 		FALSE,			   // Set handle inheritance to FALSE
-		CREATE_NO_WINDOW,  // Don't show 7zip log    
+		0,  // Don't show 7zip log    
 		nullptr,           // Use parent's environment block
 		nullptr,           // Use parent's starting directory 
 		&si,               // Pointer to STARTUPINFO structure
@@ -44,7 +45,7 @@ bool StrategyDeployment::zip(const std::string& sourceFileName, const std::strin
 	// Close process and thread handles. 
 	CloseHandle(pi.hProcess);
 	CloseHandle(pi.hThread);
-	logList.push_back("File: " + sourceFileName + ". Succsessully compressed to " + sourceFileName);
+	logList.push_back("File: " + sourceFileName + ". Succsessully compressed to " + zippedFileName);
 	return true;
 }
 
@@ -54,20 +55,25 @@ bool StrategyDeployment::unzip(const std::string zippedFileName) const
 	return true;
 }
 
+bool StrategyDeployment::to_zip()
+{
+	return zip(commodFileName, commodFileName + ".zip");
+}
+
 bool StrategyDeployment::saveFile(const std::string fileName, unsigned char *buffer, long size, const std::string &param)
 {
-	FILE *saveFile;
-	if (fopen_s(&saveFile, fileName.c_str(), param.c_str())!=0)
+	FILE *file;
+	if (fopen_s(&file, fileName.c_str(), param.c_str())!=0)
 	{
 		logList.push_back("Unable to open file for write: " + fileName + ". Error: "+ std::to_string(GetLastError()));
 		return false;
 	}
-	if (!fwrite(buffer, sizeof(char), size, saveFile))
+	if (!fwrite(buffer, sizeof(char), size, file))
 	{
 		logList.push_back("Unable to saveFile: " + fileName + ". Error: " + std::to_string(GetLastError()));
 		return false;
 	}
-	fclose(saveFile);
+	fclose(file);
 	return true;
 }
 
@@ -99,6 +105,7 @@ bool StrategyDeployment::convert()
 {
 	//parsing file
 	//parsing header
+	openfile(commodFileName);
 	auto header = new char[HEADER_SIZE];
 	fread_s(header, HEADER_SIZE, sizeof(char), HEADER_SIZE, commodFile);
 
@@ -215,6 +222,9 @@ bool StrategyDeployment::convert()
 	isOk ? logList.push_back("File: " + commodFileName + " sucsessfully converted to\nFile: " + commodFileName + "_a.") :
 		logList.push_back("Error converting file " + commodFileName);
 
+	fclose(commodFile);
+	if (createCompressedFile)
+		to_zip();
 	delete[] header;
 	delete[] dataToParse;
 	return isOk;
@@ -222,7 +232,7 @@ bool StrategyDeployment::convert()
 
 bool StrategyDeployment::validateCurrentConfiguration()
 {
-	auto hInstDll = LoadLibrary(_T("D:\\ubs\\Dev\\lib\\win32DLib\\x64\\Debug\\win32dlib.dll"));
+	auto hInstDll = LoadLibrary(_T("win32dlib.dll"));
 	hInstDll!=nullptr ? logList.push_back("Dll loaded successfully.") : logList.push_back("Failed to load dll\n");
 	auto pDllGetFactory = reinterpret_cast<DLLGETFACTORY>(GetProcAddress(hInstDll, "returnFactory"));
 	auto pMyFactory = (pDllGetFactory)();
@@ -234,16 +244,36 @@ bool StrategyDeployment::validateCurrentConfiguration()
 	logList.push_back("Configuration file validation: " + drManager->getI2cCommodFileName());
 	auto validConfig = testWorkManager->validateConfig();
 
+	delete drIoManager;
+	delete drManager;
+	delete testWorkManager;
 	//better to free library, be aware of memory leak. (automatically free library when there is no process using it)
 	FreeLibrary(hInstDll);
 	logList.push_back("Library successfully freed.");
 	return validConfig;
 }
 
+bool StrategyDeployment::loadConfiguration()
+{
+
+	return false;
+}
+
 void StrategyDeployment::showLog()
 {
 	for (auto it = logList.begin(); it != logList.end(); ++it)
 		std::cout << *it << std::endl;
+}
+
+bool StrategyDeployment::execute()
+{
+	if (validateCurrentConfiguration()) {
+		if (isParseEnabked()) convert();
+		loadConfiguration();
+		return true;
+	}
+
+	return false;
 }
 
 StrategyDeployment::~StrategyDeployment()
