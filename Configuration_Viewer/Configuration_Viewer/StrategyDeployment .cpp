@@ -96,7 +96,7 @@ bool StrategyDeployment::openfile(const std::string fileName)
 		return false;
 	}
 	if (fopen_s(&commodFile, fileName.c_str(), "r+b")!=0)
-		logList.push_back("Error to open file:" + fileName + ". Error: " + std::to_string(GetLastError()));
+		logList.push_back("Can not open file: " + fileName + ". Error: " + std::to_string(GetLastError()));
 	commodFileSize = getFileSize(fileName);
 	return true;
 }
@@ -220,7 +220,7 @@ bool StrategyDeployment::convert()
 	isOk=isOk&saveFile(commodFileName + "_a", reinterpret_cast<unsigned char*>(_strdup(resultStr.c_str())), resultStr.size(), "a+b");
 
 	isOk ? logList.push_back("File: " + commodFileName + " sucsessfully converted to\nFile: " + commodFileName + "_a.") :
-		logList.push_back("Error converting file " + commodFileName);
+		logList.push_back("Error: can not convert file " + commodFileName);
 
 	fclose(commodFile);
 	if (createCompressedFile)
@@ -233,7 +233,7 @@ bool StrategyDeployment::convert()
 bool StrategyDeployment::validateCurrentConfiguration()
 {
 	auto hInstDll = LoadLibrary(_T("win32dlib.dll"));
-	hInstDll!=nullptr ? logList.push_back("Dll loaded successfully.") : logList.push_back("Failed to load dll\n");
+	hInstDll!=nullptr ? logList.push_back("Dll loaded successfully.") : logList.push_back("Error: Failed to load dll\n");
 	auto pDllGetFactory = reinterpret_cast<DLLGETFACTORY>(GetProcAddress(hInstDll, "returnFactory"));
 	auto pMyFactory = (pDllGetFactory)();
 	if (pMyFactory == nullptr) return 0;
@@ -255,8 +255,73 @@ bool StrategyDeployment::validateCurrentConfiguration()
 
 bool StrategyDeployment::loadConfiguration()
 {
+	FT_DEVICE_LIST_INFO_NODE deviceInfo;
+	getDevicesCount() == 0 ? logList.push_back("No FTDI defices found!") : logList.push_back("Connecting to the first FTDI device");	FT_HANDLE ft_handle = getFirstDeviceHandle();
+	if (ft_handle == nullptr)
+		return false;
 
-	return false;
+
+	return true;
+}
+
+unsigned int StrategyDeployment::getDevicesCount()
+{
+	unsigned int ftdiDeviceCount;
+	FT_STATUS ftStatus;
+	ftStatus = FT_ListDevices(&ftdiDeviceCount, nullptr, FT_LIST_NUMBER_ONLY);
+	if (ftStatus == FT_OK) {
+		// FT_ListDevices OK, number of devices connected is in numDevs
+		return ftdiDeviceCount;
+	}
+	else {
+		logList.push_back("Error: FT_ListDevices failed!");
+		return -1;
+	}
+
+}
+
+FT_HANDLE StrategyDeployment::getFirstDeviceHandle()
+{
+	if (getDevicesCount() == 0) {
+		logList.push_back("No devices have been found.");
+		return nullptr;
+	}
+	FT_HANDLE ftHandle;
+	FT_STATUS ftStatus;
+	ftStatus = FT_Open(0, &ftHandle);
+	if (ftStatus == FT_OK) {
+		// FT_Open OK, use ftHandle to access device
+		logList.push_back("The first device opened.");
+		return ftHandle;
+	}
+	else {
+		// FT_Open failed
+		logList.push_back("Error: the first device can not be opened!");
+		return nullptr;
+	}
+}
+
+FT_HANDLE StrategyDeployment::getDeviceByDescription(const std::string description)
+{
+	if (getDevicesCount() == 0) {
+		logList.push_back("No devices have been found.");
+		return nullptr;
+	}
+	FT_HANDLE ftHandle;
+	FT_STATUS ftStatus;
+
+	ftStatus = FT_OpenEx(PVOID(description.c_str()), FT_OPEN_BY_DESCRIPTION, &ftHandle);
+	if (ftStatus == FT_OK) {
+		// FT_Open OK, use ftHandle to access device
+		logList.push_back("The first device opened.");
+		return ftHandle;
+	}
+	else {
+		// FT_Open failed
+		logList.push_back("Error: the first device can not be opened!");
+		return nullptr;
+	}
+
 }
 
 void StrategyDeployment::showLog()

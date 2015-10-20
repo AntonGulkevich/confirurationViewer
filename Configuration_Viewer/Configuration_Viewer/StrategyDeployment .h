@@ -16,7 +16,9 @@
 
 #define DELIMITER "GENERAL"
 #include "SplitString.h"
-#include "D:\ubs\Dev\lib\win32DLib\win32DLib\ucu_fw\src\dllapi/factory.h"
+#include "ftd2xx.h"
+#include "D:\ubs\Dev\lib\win32DLib\win32DLib\ucu_fw\src\dllapi\factory.h"
+
 class StrategyDeployment 
 {
 private:
@@ -37,6 +39,9 @@ private:
 		unsigned int address;
 		unsigned int size;
 	};
+	//ft_device
+	std::list <FT_DEVICE_LIST_INFO_NODE> deviceList;
+
 public:
 	explicit StrategyDeployment(const std::string commodFileName_);
 	//get
@@ -76,7 +81,12 @@ public:
 	}
 	bool convert();
 	bool validateCurrentConfiguration();
+	
+	//ft_device
 	bool loadConfiguration();
+	unsigned int getDevicesCount();
+	FT_HANDLE getFirstDeviceHandle();
+	FT_HANDLE getDeviceByDescription(const std::string description);
 	//log
 	bool saveLog();
 	void showLog();

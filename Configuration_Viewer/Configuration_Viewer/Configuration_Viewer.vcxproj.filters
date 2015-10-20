@@ -32,5 +32,11 @@
     <ClInclude Include="SplitString.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="ftd2xx.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="ftd2xx.lib" />
   </ItemGroup>
 </Project>
