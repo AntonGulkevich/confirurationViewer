@@ -88,6 +88,23 @@ bool StrategyDeployment::saveFile(const std::string fileName,  std::vector<unsig
 	return processOk;
 }
 
+bool StrategyDeployment::saveFile(const std::string fileName, const std::list<std::string> listToSave)
+{
+	FILE *file;
+	if (fopen_s(&file, fileName.c_str(), "a+b") != 0)
+	{
+		logList.push_back("Unable to open file for write: " + fileName + ". Error: " + std::to_string(GetLastError()));
+		return false;
+	}
+	for (auto it = logList.begin(); it != logList.end(); ++it)
+	{
+		fwrite((*it).c_str(), sizeof(char), (*it).size(), file);
+	}
+	fclose(file);
+	return true;
+
+}
+
 bool StrategyDeployment::openfile(const std::string fileName)
 {
 	if (!isFileExists(fileName))
@@ -256,7 +273,8 @@ bool StrategyDeployment::validateCurrentConfiguration()
 bool StrategyDeployment::loadConfiguration()
 {
 	FT_DEVICE_LIST_INFO_NODE deviceInfo;
-	getDevicesCount() == 0 ? logList.push_back("No FTDI defices found!") : logList.push_back("Connecting to the first FTDI device");	FT_HANDLE ft_handle = getFirstDeviceHandle();
+	getDevicesCount() == 0 ? logList.push_back("No FTDI defices found!") : logList.push_back("Connecting to the first FTDI device");
+	FT_HANDLE ft_handle = getFirstDeviceHandle();
 	if (ft_handle == nullptr)
 		return false;
 
@@ -298,7 +316,8 @@ FT_HANDLE StrategyDeployment::getFirstDeviceHandle()
 		// FT_Open failed
 		logList.push_back("Error: the first device can not be opened!");
 		return nullptr;
-	}
+	}
+
 }
 
 FT_HANDLE StrategyDeployment::getDeviceByDescription(const std::string description)
@@ -313,15 +332,19 @@ FT_HANDLE StrategyDeployment::getDeviceByDescription(const std::string descripti
 	ftStatus = FT_OpenEx(PVOID(description.c_str()), FT_OPEN_BY_DESCRIPTION, &ftHandle);
 	if (ftStatus == FT_OK) {
 		// FT_Open OK, use ftHandle to access device
-		logList.push_back("The first device opened.");
+		logList.push_back("The device: "+ description +" opened.");
 		return ftHandle;
 	}
 	else {
 		// FT_Open failed
-		logList.push_back("Error: the first device can not be opened!");
+		logList.push_back("Error: The device: " + description + " can not be opened!");
 		return nullptr;
-	}
+	}
+}
 
+void StrategyDeployment::saveLog()
+{
+	saveFile("log.txt", logList);
 }
 
 void StrategyDeployment::showLog()

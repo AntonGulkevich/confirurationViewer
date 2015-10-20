@@ -157,9 +157,6 @@
     <ClInclude Include="SplitString.h" />
     <ClInclude Include="StrategyDeployment .h" />
   </ItemGroup>
-  <ItemGroup>
-    <Library Include="ftd2xx.lib" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

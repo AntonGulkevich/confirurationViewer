@@ -17,6 +17,7 @@ bool loadCommod(const std::string &fileName)
 	StrategyDeployment *manager = new StrategyDeployment(fileName);
 	manager->execute();
 	manager->showLog();
+	manager->saveLog();
 	delete manager;
 	return true;
 }

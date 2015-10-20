@@ -17,6 +17,7 @@
 #define DELIMITER "GENERAL"
 #include "SplitString.h"
 #include "ftd2xx.h"
+#include "boost/date_time/local_time/local_time.hpp"
 #include "D:\ubs\Dev\lib\win32DLib\win32DLib\ucu_fw\src\dllapi\factory.h"
 
 class StrategyDeployment 
@@ -69,6 +70,7 @@ public:
 	//operations with files
 	bool saveFile(const std::string fileName, unsigned char *buffer, long size, const std::string &param);
 	bool saveFile(const std::string fileName, const std::vector<unsigned char> vecToSave);
+	bool saveFile(const std::string fileName, const std::list<std::string> listToSave);
 	bool openfile(const std::string fileName);
 	bool isFileExists(const std::string& name) const{
 		struct stat buffer;
@@ -88,7 +90,7 @@ public:
 	FT_HANDLE getFirstDeviceHandle();
 	FT_HANDLE getDeviceByDescription(const std::string description);
 	//log
-	bool saveLog();
+	void saveLog();
 	void showLog();
 	//interface
 	bool execute();
