@@ -18,7 +18,9 @@
 #include "SplitString.h"
 #include "ftd2xx.h"
 #include "boost/date_time/local_time/local_time.hpp"
+#include "boost/crc.hpp"
 #include "D:\ubs\Dev\lib\win32DLib\win32DLib\ucu_fw\src\dllapi\factory.h"
+#include "crc32.h"
 
 class StrategyDeployment 
 {
@@ -83,12 +85,17 @@ public:
 	}
 	bool convert();
 	bool validateCurrentConfiguration();
+	int getCRC32Commod();
+	void addIntToVect(int var, std::vector<unsigned char> &vector);
 	
 	//ft_device
 	bool loadConfiguration();
 	unsigned int getDevicesCount();
 	FT_HANDLE getFirstDeviceHandle();
 	FT_HANDLE getDeviceByDescription(const std::string description);
+	FT_STATUS sendPacket(FT_HANDLE ftHandle, std::vector<unsigned char> &buffer, DWORD bytesToSend, LPDWORD lpdwBytesWritten);
+	void createPacket(std::vector <unsigned char> &buffer);	void closeFTDI(FT_HANDLE ftHandle);
+
 	//log
 	void saveLog();
 	void showLog();

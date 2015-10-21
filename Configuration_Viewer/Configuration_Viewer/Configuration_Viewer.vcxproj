@@ -149,10 +149,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Configuration_Viewer.cpp" />
+    <ClCompile Include="crc32.cpp" />
     <ClCompile Include="SplitString.cpp" />
     <ClCompile Include="StrategyDeployment .cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="crc32.h" />
     <ClInclude Include="ftd2xx.h" />
     <ClInclude Include="SplitString.h" />
     <ClInclude Include="StrategyDeployment .h" />

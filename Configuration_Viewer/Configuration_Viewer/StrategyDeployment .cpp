@@ -122,7 +122,9 @@ bool StrategyDeployment::convert()
 {
 	//parsing file
 	//parsing header
-	openfile(commodFileName);
+	if (!openfile(commodFileName))	{
+		return false;
+	}
 	auto header = new char[HEADER_SIZE];
 	fread_s(header, HEADER_SIZE, sizeof(char), HEADER_SIZE, commodFile);
 
@@ -270,15 +272,72 @@ bool StrategyDeployment::validateCurrentConfiguration()
 	return validConfig;
 }
 
+int StrategyDeployment::getCRC32Commod()
+{
+	if (commodFile != nullptr)
+		fclose(commodFile);
+	if (!openfile(parseEnabled ? commodFileName + "_a" : commodFileName))
+		return 0;
+	auto rawBuffer = new unsigned char[commodFileSize];
+	fread_s(rawBuffer, commodFileSize, sizeof(char), commodFileSize, commodFile);
+	fclose(commodFile);
+
+	CRC32_n check;
+	check.ProcessCRC(rawBuffer, commodFileSize);
+	delete[] rawBuffer;
+	return check.GetCRC32();
+	//WARNING
+	//this crc32 is not valid crc32 or crc32b due to current specification
+	//CRC-32Q specification in aviation Aeronautical Information Exchange Model (AIXM) 0x814141AB
+	//using polinom 0x8DD202EF
+	//-------------------------------------------------------------------------------------------
+	//valid calculation (crc32b specification) 
+	/*boost::crc_32_type checksum_agent;
+	checksum_agent.process_bytes(rawBuffer, commodFileSize);
+	int a= checksum_agent.checksum();*/
+	}
+
+void StrategyDeployment::addIntToVect(int var, std::vector<unsigned char>& vector)
+{
+	vector.push_back(static_cast<unsigned char>((var >> 0) & 0xFF));
+	vector.push_back(static_cast<unsigned char>((var >> 8) & 0xFF));
+	vector.push_back(static_cast<unsigned char>((var >> 16) & 0xFF));
+	vector.push_back(static_cast<unsigned char>((var >> 24) & 0xFF));
+}
+
 bool StrategyDeployment::loadConfiguration()
 {
 	FT_DEVICE_LIST_INFO_NODE deviceInfo;
-	getDevicesCount() == 0 ? logList.push_back("No FTDI defices found!") : logList.push_back("Connecting to the first FTDI device");
+	if (getDevicesCount() <= 0)	{
+		logList.push_back("No FTDI defices found!");
+		return false;
+	}
+	logList.push_back("Connecting to the first FTDI device");
+
 	FT_HANDLE ft_handle = getFirstDeviceHandle();
 	if (ft_handle == nullptr)
 		return false;
+	std::string fileName = (parseEnabled ? commodFileName : commodFileName + "_a");
+	
+	FT_SetBaudRate(ft_handle, 12000000);
+	FT_SetDataCharacteristics(ft_handle, 8, 0, 0);
+	FT_SetTimeouts(ft_handle, 5000, 200);
 
+	char byteRep[100];
 
+	unsigned long bytesRead;
+
+	FT_Read(ft_handle, byteRep, 100, &bytesRead);
+
+	std::vector <unsigned char> buffer;
+	//creating packet
+	createPacket(buffer);
+	unsigned long bytesSended;
+	FT_STATUS sendState  = sendPacket(ft_handle, buffer, buffer.size(), &bytesSended);	
+
+	
+
+	FT_Close(ft_handle);
 	return true;
 }
 
@@ -340,6 +399,49 @@ FT_HANDLE StrategyDeployment::getDeviceByDescription(const std::string descripti
 		logList.push_back("Error: The device: " + description + " can not be opened!");
 		return nullptr;
 	}
+}
+
+FT_STATUS StrategyDeployment::sendPacket(FT_HANDLE ftHandle, std::vector<unsigned char> &buffer, DWORD bytesToSend, LPDWORD lpdwBytesWritten)
+{
+	unsigned char * rawBuffer = new unsigned char[buffer.size()];
+	rawBuffer = reinterpret_cast<unsigned char*>(buffer.data());
+	bool res = FT_Write(ftHandle, rawBuffer, bytesToSend, lpdwBytesWritten);
+	return res;
+}
+
+void StrategyDeployment::createPacket (std::vector <unsigned char> &buffer)
+{
+	int headerPlisFlag = 0xABABABAB;
+	short headerPlisLength; //plis logic demands decrement body size
+	int bodyFlag = 0x05CE23F8;
+	int commodsize;
+	int commodCRC32 = getCRC32Commod();
+	int endFlag = 0x3F344A21;
+	int forgottenFlag = 0x0c077770d;
+
+	if (!openfile(parseEnabled ? commodFileName + "_a" : commodFileName))
+		return;
+	auto rawBuffer = new unsigned char[commodFileSize];
+	fread_s(rawBuffer, commodFileSize, sizeof(char), commodFileSize, commodFile);
+	commodsize = commodFileSize;
+	headerPlisLength = commodsize + 4 * sizeof(int) - 1;
+	fclose(commodFile);
+
+	addIntToVect(headerPlisFlag, buffer);
+	buffer.push_back(static_cast<unsigned char>((headerPlisLength >> 0) & 0xFF));
+	buffer.push_back(static_cast<unsigned char>((headerPlisLength >> 8) & 0xFF));
+	addIntToVect(bodyFlag, buffer);
+	addIntToVect(commodsize, buffer);
+
+	buffer.insert(buffer.end(), rawBuffer, rawBuffer + commodFileSize);
+	addIntToVect(commodCRC32, buffer);
+	addIntToVect(endFlag, buffer);
+	//int b= (buffer[0] << 24) | (buffer[1] << 16) | (buffer[2] << 8) | buffer[3];	
+}
+
+void StrategyDeployment::closeFTDI(FT_HANDLE ftHandle)
+{
+	FT_Close(ftHandle);
 }
 
 void StrategyDeployment::saveLog()
