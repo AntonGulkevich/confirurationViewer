@@ -14,6 +14,15 @@
 #define EEPROMFILE_SIZE 128*1024
 #undef  EM_DEBUG
 
+//define flags
+#define STARTFLAG 0xABABABAB
+#define BODYFLAG 0x05CE23F8
+#define ENDFLAG 0x3F344A21
+#define FORGOTTENFLAG 0xC077770D
+#define COMMANDFLAG 0x03DF3409
+
+//end of define flags
+
 #define DELIMITER "GENERAL"
 #include "SplitString.h"
 #include "ftd2xx.h"
@@ -46,9 +55,26 @@ private:
 	std::list <FT_DEVICE_LIST_INFO_NODE> deviceList;
 
 public:
-	explicit StrategyDeployment(const std::string commodFileName_);
+	enum Commands
+	{
+		VersionRequest = 1,
+		LoadFW = 2,
+		LoadCM = 3,  // Загрузка в КМ
+		SaveCM = 4,  // Выгрузка КМ в ПК
+		DiagnosticEnable = 5, // Включить диагностику
+		DiagnosticDisable = 6, // Выключить диагностику
+		Configuration = 7, // Запрос конфигурации
+		GetChannelSettings = 8, // Запрос настроек каналов
+		GetFails = 9, // Запрос отказов
+		GetDynamicInfo = 10, // Запрос динамической информации
+		Reboot = 11, // Перезагрузка
+		StartCalibrate = 12, // Откалибровать входы
+		GetCalibrates = 13, // Получить текущие калибровки
+		SaveSettings = 14, // Сохранить пользовательские настройки
+	};
+	explicit StrategyDeployment(const std::string commodFileName_);//constructor
 	//get
-	std::string getCommodFileName()	{return commodFileName;}
+	std::string getCommodFileName()	{return commodFileName;}//return last opened commod.bin full adress
 	short getZipCompressionLevel() const { return zipCompressionLevel; }
 	std::string getZipLocation() const  { return zipLocation; }
 	bool isParseEnabked() const  { return parseEnabled; }
@@ -87,14 +113,34 @@ public:
 	bool validateCurrentConfiguration();
 	int getCRC32Commod();
 	void addIntToVect(int var, std::vector<unsigned char> &vector);
+	void addShortToVect(short var, std::vector <unsigned char> &vector);
 	
 	//ft_device
 	bool loadConfiguration();
+	void rebootDevice();
 	unsigned int getDevicesCount();
 	FT_HANDLE getFirstDeviceHandle();
 	FT_HANDLE getDeviceByDescription(const std::string description);
 	FT_STATUS sendPacket(FT_HANDLE ftHandle, std::vector<unsigned char> &buffer, DWORD bytesToSend, LPDWORD lpdwBytesWritten);
-	void createPacket(std::vector <unsigned char> &buffer);	void closeFTDI(FT_HANDLE ftHandle);
+	FT_STATUS sendCommand(FT_HANDLE ftHandle, Commands command);
+	void createPacket(std::vector <unsigned char> &buffer);
+	FT_STATUS closeFTDI(FT_HANDLE ftHandle);
+	FT_STATUS loadCM(FT_HANDLE ft_handle);
+	FT_STATUS reboot(FT_HANDLE ft_handle); 
+	FT_STATUS versionRequest();
+	FT_STATUS loadFW();	
+	FT_STATUS saveCM();
+	FT_STATUS diagnosticEnable();
+	FT_STATUS diagnosticDisable();
+	FT_STATUS configuration();
+	FT_STATUS getChannelSettings();
+	FT_STATUS getFails(); 
+	FT_STATUS getDynamicInfo();	
+	FT_STATUS startCalibrate();
+	FT_STATUS getCalibrates(); 
+	FT_STATUS saveSettings();
+	bool setFTDISettings(FT_HANDLE ft_handle);
+
 
 	//log
 	void saveLog();

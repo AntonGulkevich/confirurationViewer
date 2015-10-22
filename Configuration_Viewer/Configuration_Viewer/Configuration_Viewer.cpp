@@ -32,7 +32,8 @@ int main(int argc, char* argv[])
 	//-commodFileName(destination of commod.bin) -a(parse) -7(zip level if compression needed) 
 	//example: -D:\commod.bin -a -7 
 	setlocale(LC_ALL, "RUS");	
-	loadCommod("C:\\Users\\Gulkevich_A\\Desktop\\current\\1\\commod.bin");
+	//loadCommod("C:\\Users\\Gulkevich_A\\Desktop\\current\\1\\commod.bin");
+	loadCommod("commod.bin");
 	system("PAUSE");
 	_CrtDumpMemoryLeaks();
 	return 0;

@@ -3,11 +3,11 @@
 StrategyDeployment::StrategyDeployment(const std::string commodFileName_) :
 	commodFileName(commodFileName_)
 {
-	zipEnabled = true;
-	parseEnabled = true;
-	saveToSameFolder = true;
+	zipEnabled = false;
+	parseEnabled = false;
+	saveToSameFolder = false;
 	zipCompressionLevel = 7;
-	createCompressedFile = true;
+	createCompressedFile = false;
 	commodFileSize = 0;
 	zipLocation = "";
 	commodFile = nullptr;
@@ -305,48 +305,68 @@ void StrategyDeployment::addIntToVect(int var, std::vector<unsigned char>& vecto
 	vector.push_back(static_cast<unsigned char>((var >> 24) & 0xFF));
 }
 
+void StrategyDeployment::addShortToVect(short var, std::vector<unsigned char>& vector)
+{
+	vector.push_back(static_cast<unsigned char>((var >> 0) & 0xFF));
+	vector.push_back(static_cast<unsigned char>((var >> 8) & 0xFF));
+}
+
 bool StrategyDeployment::loadConfiguration()
 {
-	FT_DEVICE_LIST_INFO_NODE deviceInfo;
+	//FT_DEVICE_LIST_INFO_NODE deviceInfo;
 	if (getDevicesCount() <= 0)	{
 		logList.push_back("No FTDI defices found!");
 		return false;
 	}
 	logList.push_back("Connecting to the first FTDI device");
-
-	FT_HANDLE ft_handle = getFirstDeviceHandle();
+	FT_HANDLE ft_handle = getFirstDeviceHandle(); //open device
 	if (ft_handle == nullptr)
 		return false;
-	std::string fileName = (parseEnabled ? commodFileName : commodFileName + "_a");
-	
-	FT_SetBaudRate(ft_handle, 12000000);
-	FT_SetDataCharacteristics(ft_handle, 8, 0, 0);
-	FT_SetTimeouts(ft_handle, 5000, 200);
-
+	if (!setFTDISettings(ft_handle))
+		return false;
+	if (sendCommand(ft_handle, Commands::LoadCM) != FT_OK){
+		logList.push_back("Error: cant send command!");
+		return false;
+	}
 	char byteRep[100];
-
 	unsigned long bytesRead;
+	if (FT_Read(ft_handle, byteRep, 100, &bytesRead) != FT_OK) {
+		logList.push_back("Error: FT_Read.");
+		return false;
+	}
 
-	FT_Read(ft_handle, byteRep, 100, &bytesRead);
-
-	std::vector <unsigned char> buffer;
-	//creating packet
-	createPacket(buffer);
-	unsigned long bytesSended;
-	FT_STATUS sendState  = sendPacket(ft_handle, buffer, buffer.size(), &bytesSended);	
-
-	
-
+	if (sendCommand(ft_handle, Commands::Reboot) != FT_OK) {
+		logList.push_back("Error: cant send command!");
+		return false;
+	}
 	FT_Close(ft_handle);
 	return true;
+}
+
+void StrategyDeployment::rebootDevice()
+{
+	if (getDevicesCount() <= 0) {
+		logList.push_back("No FTDI defices found!");
+		return;
+	}
+	logList.push_back("Connecting to the first FTDI device");
+	FT_HANDLE ft_handle = getFirstDeviceHandle(); //open device
+	if (ft_handle == nullptr)
+		return;
+	if (!setFTDISettings(ft_handle))
+		return;
+	if (sendCommand(ft_handle, Commands::Reboot) != FT_OK) {
+		logList.push_back("Error: cant send command!");
+		return;
+	}
+	FT_Close(ft_handle);
+	logList.push_back("The first device rebooted.");
 }
 
 unsigned int StrategyDeployment::getDevicesCount()
 {
 	unsigned int ftdiDeviceCount;
-	FT_STATUS ftStatus;
-	ftStatus = FT_ListDevices(&ftdiDeviceCount, nullptr, FT_LIST_NUMBER_ONLY);
-	if (ftStatus == FT_OK) {
+	if (FT_ListDevices(&ftdiDeviceCount, nullptr, FT_LIST_NUMBER_ONLY) == FT_OK) {
 		// FT_ListDevices OK, number of devices connected is in numDevs
 		return ftdiDeviceCount;
 	}
@@ -354,7 +374,6 @@ unsigned int StrategyDeployment::getDevicesCount()
 		logList.push_back("Error: FT_ListDevices failed!");
 		return -1;
 	}
-
 }
 
 FT_HANDLE StrategyDeployment::getFirstDeviceHandle()
@@ -364,9 +383,7 @@ FT_HANDLE StrategyDeployment::getFirstDeviceHandle()
 		return nullptr;
 	}
 	FT_HANDLE ftHandle;
-	FT_STATUS ftStatus;
-	ftStatus = FT_Open(0, &ftHandle);
-	if (ftStatus == FT_OK) {
+	if (FT_Open(0, &ftHandle) == FT_OK) {
 		// FT_Open OK, use ftHandle to access device
 		logList.push_back("The first device opened.");
 		return ftHandle;
@@ -403,45 +420,194 @@ FT_HANDLE StrategyDeployment::getDeviceByDescription(const std::string descripti
 
 FT_STATUS StrategyDeployment::sendPacket(FT_HANDLE ftHandle, std::vector<unsigned char> &buffer, DWORD bytesToSend, LPDWORD lpdwBytesWritten)
 {
-	unsigned char * rawBuffer = new unsigned char[buffer.size()];
+	unsigned char * rawBuffer;
 	rawBuffer = reinterpret_cast<unsigned char*>(buffer.data());
 	bool res = FT_Write(ftHandle, rawBuffer, bytesToSend, lpdwBytesWritten);
 	return res;
 }
 
+FT_STATUS StrategyDeployment::sendCommand(FT_HANDLE ftHandle, Commands command)
+{
+	switch (command)
+	{
+	case 1: //VersionRequest
+		return versionRequest();
+	case 2: //LoadFW
+		return loadFW();
+	case 3: //LoadCM
+		return loadCM(ftHandle);
+	case 4: //SaveCM
+		return saveCM();
+	case 5: //DiagnosticEnable
+		return diagnosticEnable();
+	case 6: //DiagnosticDisable
+		return diagnosticDisable();
+	case 7: //Configuration
+		return configuration();
+	case 8: //GetChannelSettings
+		return getChannelSettings();
+	case 9: //GetFails
+		return getFails();
+	case 10: //GetDynamicInfo
+		return getDynamicInfo();
+	case 11: //Reboot
+		return reboot(ftHandle);
+	case 12: //StartCalibrate
+		return startCalibrate();
+	case 13: //GetCalibrates
+		return getCalibrates();
+	case 14: //SaveSettings
+		return saveSettings();
+	default:
+		logList.push_back("Invalid command!");
+		return -1;
+	}
+
+}
+
 void StrategyDeployment::createPacket (std::vector <unsigned char> &buffer)
 {
-	int headerPlisFlag = 0xABABABAB;
+	int headerPlisFlag = STARTFLAG;
 	short headerPlisLength; //plis logic demands decrement body size
-	int bodyFlag = 0x05CE23F8;
+	int bodyFlag = BODYFLAG;
 	int commodsize;
 	int commodCRC32 = getCRC32Commod();
-	int endFlag = 0x3F344A21;
-	int forgottenFlag = 0x0c077770d;
+	int endFlag = ENDFLAG;
+	int forgottenFlag = FORGOTTENFLAG;
 
 	if (!openfile(parseEnabled ? commodFileName + "_a" : commodFileName))
 		return;
 	auto rawBuffer = new unsigned char[commodFileSize];
 	fread_s(rawBuffer, commodFileSize, sizeof(char), commodFileSize, commodFile);
-	commodsize = commodFileSize;
-	headerPlisLength = commodsize + 4 * sizeof(int) - 1;
+	commodsize = commodFileSize + 8;
+	headerPlisLength = commodFileSize + 5 * sizeof(int) - 1;
 	fclose(commodFile);
 
 	addIntToVect(headerPlisFlag, buffer);
-	buffer.push_back(static_cast<unsigned char>((headerPlisLength >> 0) & 0xFF));
-	buffer.push_back(static_cast<unsigned char>((headerPlisLength >> 8) & 0xFF));
+	addShortToVect(headerPlisLength, buffer);
 	addIntToVect(bodyFlag, buffer);
 	addIntToVect(commodsize, buffer);
-
+	addIntToVect(forgottenFlag, buffer);
 	buffer.insert(buffer.end(), rawBuffer, rawBuffer + commodFileSize);
 	addIntToVect(commodCRC32, buffer);
 	addIntToVect(endFlag, buffer);
-	//int b= (buffer[0] << 24) | (buffer[1] << 16) | (buffer[2] << 8) | buffer[3];	
+	//int b= (buffer[0] << 24) | (buffer[1] << 16) | (buffer[2] << 8) | buffer[3];
 }
 
-void StrategyDeployment::closeFTDI(FT_HANDLE ftHandle)
+FT_STATUS StrategyDeployment::closeFTDI(FT_HANDLE ftHandle)
 {
-	FT_Close(ftHandle);
+	return FT_Close(ftHandle);
+}
+
+FT_STATUS StrategyDeployment::loadCM(FT_HANDLE ft_handle)
+{
+	std::vector <unsigned char> buffer;
+	createPacket(buffer);//creating packet
+	unsigned long bytesSended;	
+	if (sendPacket(ft_handle, buffer, buffer.size(), &bytesSended)!= FT_OK) {
+		logList.push_back("Error: FT_Write.");
+		return -1;
+	}
+	logList.push_back("CM loaded to the first FTDI device.");
+	return FT_OK;
+}
+
+FT_STATUS StrategyDeployment::reboot(FT_HANDLE ft_handle)
+{
+	FT_STATUS ft_status;
+	short size = 4 * (3 + 1) - 1;
+	std::vector <unsigned char> vecData;
+	addIntToVect(STARTFLAG, vecData);	
+	addShortToVect(size, vecData);
+	addIntToVect(COMMANDFLAG, vecData);
+	addIntToVect(1, vecData);	
+
+	vecData.push_back(0x5D);
+	vecData.push_back(0x0B);
+	vecData.push_back(0x00);
+	vecData.push_back(0xE4);
+
+	addIntToVect(ENDFLAG, vecData);
+	unsigned long bytesWritten;
+	ft_status = sendPacket(ft_handle, vecData, vecData.size(), &bytesWritten);
+	return ft_status;
+}
+
+FT_STATUS StrategyDeployment::versionRequest()
+{
+	return 0;
+}
+
+FT_STATUS StrategyDeployment::loadFW()
+{
+	return 0;
+}
+
+FT_STATUS StrategyDeployment::saveCM()
+{
+	return 0;
+}
+
+FT_STATUS StrategyDeployment::diagnosticEnable()
+{
+	return 0;
+}
+
+FT_STATUS StrategyDeployment::diagnosticDisable()
+{
+	return 0;
+}
+
+FT_STATUS StrategyDeployment::configuration()
+{
+	return 0;
+}
+
+FT_STATUS StrategyDeployment::getChannelSettings()
+{
+	return 0;
+}
+
+FT_STATUS StrategyDeployment::getFails()
+{
+	return 0;;
+}
+
+FT_STATUS StrategyDeployment::getDynamicInfo()
+{
+	return 0;
+}
+
+FT_STATUS StrategyDeployment::startCalibrate()
+{
+	return 0;
+}
+
+FT_STATUS StrategyDeployment::getCalibrates()
+{
+	return 0;
+}
+
+FT_STATUS StrategyDeployment::saveSettings()
+{
+	return 0;
+}
+
+bool StrategyDeployment::setFTDISettings(FT_HANDLE ft_handle)
+{
+	if (FT_SetBaudRate(ft_handle, 12000000) != FT_OK) {
+		logList.push_back("Error: FT_SetBaudRate.");
+		return false;
+	}
+	if (FT_SetDataCharacteristics(ft_handle, 8, 0, 0) != FT_OK) {
+		logList.push_back("Error: FT_SetDataCharacteristics.");
+		return false;
+	}
+	if (FT_SetTimeouts(ft_handle, 5000, 200) != FT_OK) {
+		logList.push_back("Error: FT_SetTimeouts.");
+		return false;
+	}
+	return true;
 }
 
 void StrategyDeployment::saveLog()
@@ -459,7 +625,9 @@ bool StrategyDeployment::execute()
 {
 	if (validateCurrentConfiguration()) {
 		if (isParseEnabked()) convert();
+
 		loadConfiguration();
+		//rebootDevice();
 		return true;
 	}
 
