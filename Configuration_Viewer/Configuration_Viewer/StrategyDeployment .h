@@ -20,6 +20,10 @@
 #define ENDFLAG 0x3F344A21
 #define FORGOTTENFLAG 0xC077770D
 #define COMMANDFLAG 0x03DF3409
+#define WRONGSIZE 0xDEAD1024
+#define WRONGCRC 0xDEADCCCC
+#define OKREPLY 0x3f344A20
+#define RESPONSESIZE 15
 
 //end of define flags
 
@@ -124,6 +128,7 @@ public:
 	FT_STATUS sendPacket(FT_HANDLE ftHandle, std::vector<unsigned char> &buffer, DWORD bytesToSend, LPDWORD lpdwBytesWritten);
 	FT_STATUS sendCommand(FT_HANDLE ftHandle, Commands command);
 	void createPacket(std::vector <unsigned char> &buffer);
+	int readResponse(FT_HANDLE ft_handle, unsigned long bytesToRead);
 	FT_STATUS closeFTDI(FT_HANDLE ftHandle);
 	FT_STATUS loadCM(FT_HANDLE ft_handle);
 	FT_STATUS reboot(FT_HANDLE ft_handle); 

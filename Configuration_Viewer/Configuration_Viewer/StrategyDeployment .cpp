@@ -5,7 +5,7 @@ StrategyDeployment::StrategyDeployment(const std::string commodFileName_) :
 {
 	zipEnabled = false;
 	parseEnabled = false;
-	saveToSameFolder = false;
+	saveToSameFolder = true;
 	zipCompressionLevel = 7;
 	createCompressedFile = false;
 	commodFileSize = 0;
@@ -15,8 +15,6 @@ StrategyDeployment::StrategyDeployment(const std::string commodFileName_) :
 
 bool StrategyDeployment::zip(const std::string& sourceFileName, const std::string zippedFileName) 
 {
-	zipLocation = "D:\\Program Files (x86)\\7-Zip\\7z.exe";
-
 	STARTUPINFOA si;
 	PROCESS_INFORMATION pi;
 	ZeroMemory(&si, sizeof(si));
@@ -328,17 +326,22 @@ bool StrategyDeployment::loadConfiguration()
 		logList.push_back("Error: cant send command!");
 		return false;
 	}
-	char byteRep[100];
-	unsigned long bytesRead;
-	if (FT_Read(ft_handle, byteRep, 100, &bytesRead) != FT_OK) {
-		logList.push_back("Error: FT_Read.");
+	/*read reply*/
+	if (readResponse(ft_handle, RESPONSESIZE) != OKREPLY)
+	{
+		logList.push_back("Error: configuration can not be load.");
 		return false;
 	}
+	logList.push_back("Configuration loaded to the first FTDI device.");
+	/*end of reply*/
 
+	/*reboot*/
 	if (sendCommand(ft_handle, Commands::Reboot) != FT_OK) {
 		logList.push_back("Error: cant send command!");
 		return false;
 	}
+	logList.push_back("Rebooting the firts FTDI device.");
+	/*end of reboot*/
 	FT_Close(ft_handle);
 	return true;
 }
@@ -491,7 +494,19 @@ void StrategyDeployment::createPacket (std::vector <unsigned char> &buffer)
 	buffer.insert(buffer.end(), rawBuffer, rawBuffer + commodFileSize);
 	addIntToVect(commodCRC32, buffer);
 	addIntToVect(endFlag, buffer);
-	//int b= (buffer[0] << 24) | (buffer[1] << 16) | (buffer[2] << 8) | buffer[3];
+}
+
+int StrategyDeployment::readResponse(FT_HANDLE ft_handle, unsigned long bytesToRead)
+{
+	unsigned long bytesReturned;
+	unsigned char* byteRep = new unsigned char [bytesToRead];
+	if (FT_Read(ft_handle, byteRep, bytesToRead, &bytesReturned) != FT_OK) {
+		logList.push_back("Error: FT_Read.");
+		return -1;
+	}
+	int response  = (byteRep[14] << 24) | (byteRep[13] << 16) | (byteRep[12] << 8) | byteRep[11];
+	delete[] byteRep;
+	return response;
 }
 
 FT_STATUS StrategyDeployment::closeFTDI(FT_HANDLE ftHandle)
@@ -508,13 +523,11 @@ FT_STATUS StrategyDeployment::loadCM(FT_HANDLE ft_handle)
 		logList.push_back("Error: FT_Write.");
 		return -1;
 	}
-	logList.push_back("CM loaded to the first FTDI device.");
 	return FT_OK;
 }
 
 FT_STATUS StrategyDeployment::reboot(FT_HANDLE ft_handle)
 {
-	FT_STATUS ft_status;
 	short size = 4 * (3 + 1) - 1;
 	std::vector <unsigned char> vecData;
 	addIntToVect(STARTFLAG, vecData);	
@@ -529,8 +542,7 @@ FT_STATUS StrategyDeployment::reboot(FT_HANDLE ft_handle)
 
 	addIntToVect(ENDFLAG, vecData);
 	unsigned long bytesWritten;
-	ft_status = sendPacket(ft_handle, vecData, vecData.size(), &bytesWritten);
-	return ft_status;
+	return sendPacket(ft_handle, vecData, vecData.size(), &bytesWritten);
 }
 
 FT_STATUS StrategyDeployment::versionRequest()

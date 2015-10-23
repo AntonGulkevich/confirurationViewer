@@ -12,30 +12,79 @@ bool isLittleEndian()
 	return (numPtr[0] == 1);
 }
 
-bool loadCommod(const std::string &fileName)
+bool isFileExists(const std::string& name) {
+	struct stat buffer;
+	return (stat(name.c_str(), &buffer) == 0);
+}
+
+void showHelp()
 {
-	StrategyDeployment *manager = new StrategyDeployment(fileName);
-	manager->execute();
-	manager->showLog();
-	manager->saveLog();
-	delete manager;
-	return true;
+	cout << "\n[commodFileName]    (destination of commod.bin)\n\
+	[c]    (convert)\n\
+	[1-9]    (zip level if compression needed)\n\
+	[zipLocation]    (destination of 7z.exe)\n\
+	[0 or 1]    log 0 - show 1 - show&save\n\
+	example : \"D:\commod.bin\" c 7 \"D:\Program Files (x86)\7-Zip\7z.exe\" \n";
+	system("PAUSE");
 }
 
 int main(int argc, char* argv[])
 {
-	//LOGIC
-	//validate config
-	//parse if needed
-	//load
-	//FORMAT
-	//-commodFileName(destination of commod.bin) -a(parse) -7(zip level if compression needed) 
-	//example: -D:\commod.bin -a -7 
-	setlocale(LC_ALL, "RUS");	
-	//loadCommod("C:\\Users\\Gulkevich_A\\Desktop\\current\\1\\commod.bin");
-	loadCommod("commod.bin");
-	system("PAUSE");
-	_CrtDumpMemoryLeaks();
+	/*commodFileName(destination of commod.bin) 
+	c(convert) 
+	7(zip level if compression needed [1-9]) 
+	zipLocation(destination of 7z.exe)
+	log 0 - show 1 - show&save 
+	example: "D:\commod.bin" c 7 "D:\Program Files (x86)\7-Zip\7z.exe"*/
+	if (argc>1)
+	{
+		setlocale(LC_ALL, "RUS");
+		std::string pathToCommodFile(argv[1]);
+		if (!isFileExists(pathToCommodFile))
+		{
+			cout << "\n Error: commod file is not exist!";
+			return -1;
+		}
+		StrategyDeployment *manager = new StrategyDeployment(pathToCommodFile);
+		if (argc >= 2) {
+			if (std::string(argv[2]) != "c")
+			{
+				cout << "\n Error: wrong parameters!";
+				showHelp();
+				return -1;
+			}			
+			manager->setParse(true);
+		}
+		if (argc >= 3) {
+			int zipCompressionLevel = atoi(argv[3]);
+			if (zipCompressionLevel <=0 || zipCompressionLevel >9)
+			{
+				cout << "\n Error: wrong parameters!";
+				showHelp();
+				return -1;
+			}
+			manager->setZip(true);
+			manager->setzipCompressionLevel(zipCompressionLevel);
+			manager->setCreateCompressedFile(true);
+		}
+		if (argc >= 4) {
+			std::string zipLocation(argv[4]);
+			if (!isFileExists(zipLocation))
+			{
+				cout << "\n Error: 7z.exe is not exist!";
+				return -1;
+			}
+			manager->setZipLocation(zipLocation);
+		}
+		manager->execute();
+		if (argc>=5){
+			if (atoi(argv[5]) == 1)
+				manager->saveLog();
+			manager->showLog();
+		}
+		delete manager;
+	}
+	showHelp();
 	return 0;
 }
 
