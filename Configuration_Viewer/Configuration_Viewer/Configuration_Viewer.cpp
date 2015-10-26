@@ -83,6 +83,7 @@ int main(int argc, char* argv[])
 			manager->showLog();
 		}
 		delete manager;
+		return 0;
 	}
 	showHelp();
 	return 0;

@@ -259,7 +259,7 @@ bool StrategyDeployment::validateCurrentConfiguration()
 	drManager->setI2cCommodFileName(commodFileName);
 	auto testWorkManager = static_cast<WorkManager *>(pMyFactory->CreateWorkManager(drIoManager, drManager));
 	logList.push_back("Configuration file validation: " + drManager->getI2cCommodFileName());
-	auto validConfig = testWorkManager->validateConfig();
+	auto validConfig = testWorkManager->ValidateConfig();
 
 	delete drIoManager;
 	delete drManager;
@@ -637,12 +637,9 @@ bool StrategyDeployment::execute()
 {
 	if (validateCurrentConfiguration()) {
 		if (isParseEnabked()) convert();
-
 		loadConfiguration();
-		//rebootDevice();
 		return true;
 	}
-
 	return false;
 }
 
