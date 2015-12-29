@@ -467,8 +467,29 @@ void StrategyDeployment::getDeviceDesrc(int deviceNum, char* descr)
 
 FT_HANDLE StrategyDeployment::getFirstDeviceHandle()
 {
-	return getDeviceHandle(0);
+	int devCount = getDevicesCount();
+	char *descr;
+	for (int i = 0; i < devCount; ++i)
+	{
+		descr = new char[64];
+		getDeviceDesrc(i, descr);
+		if (!strncmp(descr, "UBS-K", 4)) return getDeviceHandle(i);
+	}
+	return nullptr;
+}
 
+unsigned StrategyDeployment::getUBSKDevicesCount()
+{
+	unsigned int ubsCount = 0;
+	int devCount = getDevicesCount();
+	char *descr;
+	for (int i = 0; i < devCount; ++i)
+	{
+		descr = new char[64];
+		getDeviceDesrc(i, descr);
+		if (!strncmp(descr, "UBS-K", 4)) ubsCount++;
+	}
+	return ubsCount;
 }
 
 FT_HANDLE StrategyDeployment::getDeviceByDescription(const std::string description)

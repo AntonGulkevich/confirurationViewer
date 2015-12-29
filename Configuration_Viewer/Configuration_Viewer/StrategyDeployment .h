@@ -132,19 +132,35 @@ public:
 	void addShortToVect(short var, std::vector <unsigned char> &vector);
 
 	//ft_device
+	//set current FTDI device number
 	void setFTDIdevice(int number);
+	//set current FTDI device number due to its serial number
 	void setFTDIDevice(char * serialNumber);
+	//load CM to the first FTDI device
 	bool loadConfiguration();
+	//load CM to the FTDI device due its serial number
 	bool loadConfiguration(FT_HANDLE ft_handle);
+	//load CM to the FTDI device due its serial number
 	bool loadConfiguration(unsigned int deviceNumber);
+	//rebooting the first FTDI device 
 	void rebootDevice();
+	//return number of FTDI devices connected to PC
 	static unsigned int getDevicesCount();
+	//set serialNumber of the FTDI device with number devideNum 
 	static void getSerialNumber(int devideNum, char* serialNumber);
+	//set descr of the FTDI device with number devideNum 
 	static void getDeviceDesrc(int deviceNum, char * descr);
+	//return the first FTDI device handle
 	FT_HANDLE getFirstDeviceHandle();
+	//return number of FTDI devices starts with UBS-K string connected to PC
+	static unsigned int getUBSKDevicesCount();
+	//return FTDI handle by description
 	FT_HANDLE getDeviceByDescription(const std::string description);
+	//write data to the FTDI device
 	FT_STATUS sendPacket(FT_HANDLE ftHandle, std::vector<unsigned char> &buffer, DWORD bytesToSend, LPDWORD lpdwBytesWritten);
+	//return FDTI device handle by its number
 	FT_HANDLE getDeviceHandle(unsigned int DeviceNumber);
+	//send one short command to the FTDDI device
 	FT_STATUS sendCommand(FT_HANDLE ftHandle, Commands command);
 	void createPacket(std::vector <unsigned char> &buffer);
 	int readResponse(FT_HANDLE ft_handle, unsigned long bytesToRead);
